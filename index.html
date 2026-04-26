@@ -1173,18 +1173,31 @@ async function ciaBuildGraph(marcas, results, industria, pais) {
   
   // Helper function to sanitize JSON string
   function sanitizeJSON(str) {
-    return str
+    let cleaned = str
       // Remove markdown code fences
       .replace(/```json\n?/g, '')
       .replace(/```\n?/g, '')
-      // Remove trailing commas before ] or }
-      .replace(/,(\s*[\]}])/g, '$1')
-      // Fix unquoted keys (common Gemini error)
-      .replace(/(\{|,)\s*([a-zA-Z_][a-zA-Z0-9_]*)\s*:/g, '$1"$2":')
       // Remove any text before first { or after last }
       .replace(/^[^{]*/, '')
       .replace(/[^}]*$/, '')
       .trim();
+    
+    // Multiple passes to catch all trailing commas
+    let prev = '';
+    while (prev !== cleaned) {
+      prev = cleaned;
+      cleaned = cleaned
+        // Remove trailing commas before closing brackets/braces
+        .replace(/,(\s*[\]}])/g, '$1')
+        // Remove multiple commas
+        .replace(/,+/g, ',')
+        // Fix spacing around colons
+        .replace(/\s*:\s*/g, ':')
+        // Normalize whitespace
+        .replace(/\s+/g, ' ');
+    }
+    
+    return cleaned;
   }
   
   // Strategy 1: Direct parse
@@ -1208,7 +1221,8 @@ async function ciaBuildGraph(marcas, results, industria, pais) {
           data = JSON.parse(sanitized);
         } catch(e3) {
           console.error('All parsing strategies failed:', e3);
-          console.log('Raw response (first 500 chars):', raw.substring(0, 500));
+          console.log('Raw response (first 1500 chars):', raw.substring(0, 1500));
+          console.log('Raw response (chars 700-900 around error):', raw.substring(700, 900));
           
           // Strategy 4: Fallback minimal graph
           data = {
