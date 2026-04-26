@@ -1290,10 +1290,29 @@ function ciaRenderGraph(data, marcas) {
   const W = svg.getBoundingClientRect().width || 700;
   const H = 420;
 
-  const colorMap = { marca:'#C9963B', categoria:'#3B82F6', atributo:'#8AAABB', entidad:'#22C55E' };
+  // DEFINICIONES SVG: Gradientes y Filtros
+  svg.innerHTML = `
+    <defs>
+      <linearGradient id="grad1" x1="0%" y1="0%" x2="100%" y2="0%">
+        <stop offset="0%" style="stop-color:var(--primary);stop-opacity:0.8" />
+        <stop offset="100%" style="stop-color:var(--accent);stop-opacity:0.2" />
+      </linearGradient>
+      <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
+        <feGaussianBlur stdDeviation="2" result="blur"/>
+        <feComposite in="SourceGraphic" in2="blur" operator="over"/>
+      </filter>
+    </defs>
+  `;
 
+  const colorMap = { marca:'var(--primary)', categoria:'var(--blue)', atributo:'var(--muted)', entidad:'var(--green)' };
   const nodeMap = {};
-  data.nodes.forEach(n => { nodeMap[n.id] = n; n.x = W/2 + (Math.random()-0.5)*200; n.y = H/2 + (Math.random()-0.5)*200; n.vx=0; n.vy=0; });
+  
+  data.nodes.forEach(n => { 
+    nodeMap[n.id] = n; 
+    n.x = W/2 + (Math.random()-0.5)*200; 
+    n.y = H/2 + (Math.random()-0.5)*200; 
+    n.vx=0; n.vy=0; 
+  });
 
   const marcaNodes = data.nodes.filter(n => n.type === 'marca');
   marcaNodes.forEach((n, i) => {
@@ -1346,8 +1365,24 @@ function ciaRenderGraph(data, marcas) {
 
   simulate(120);
 
-  svg.innerHTML = '';
+  const centerX = W / 2;
+  const centerY = H / 2;
 
+  // 1. DIBUJAR ANILLOS DE ÓRBITA (Distancia Semántica)
+  [100, 180, 260].forEach(r => {
+    const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+    circle.setAttribute('cx', centerX);
+    circle.setAttribute('cy', centerY);
+    circle.setAttribute('r', r);
+    circle.setAttribute('fill', 'none');
+    circle.setAttribute('stroke', '#2a2a32');
+    circle.setAttribute('stroke-dasharray', '4 4');
+    circle.setAttribute('stroke-width', '0.5');
+    circle.setAttribute('opacity', '0.3');
+    svg.appendChild(circle);
+  });
+
+  // 2. DIBUJAR RELACIONES (Edges con Gradientes)
   data.edges.forEach(e => {
     const a = nodeMap[e.source], b = nodeMap[e.target];
     if (!a || !b) return;
@@ -1356,31 +1391,45 @@ function ciaRenderGraph(data, marcas) {
     line.setAttribute('y1', a.y);
     line.setAttribute('x2', b.x);
     line.setAttribute('y2', b.y);
-    line.setAttribute('stroke', '#253545');
-    line.setAttribute('stroke-width', Math.min(3, (e.weight||1)/2 + 0.5));
-    line.setAttribute('opacity', '0.4');
+    line.setAttribute('stroke', 'url(#grad1)');
+    line.setAttribute('stroke-width', Math.min(3, (e.weight||1)*0.5 + 0.5));
+    line.setAttribute('opacity', '0.3');
     svg.appendChild(line);
   });
 
+  // 3. DIBUJAR NODOS con Glow y Pulsación
   data.nodes.forEach(n => {
     const g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
-    g.setAttribute('transform', `translate(${n.x},${n.y})`);
     
-    const radius = n.type === 'marca' ? 18 : Math.max(8, (n.weight||5)*1.2);
+    const radius = n.type === 'marca' ? 14 : Math.max(6, (n.weight||5)*1);
     const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+    circle.setAttribute('cx', n.x);
+    circle.setAttribute('cy', n.y);
     circle.setAttribute('r', radius);
-    circle.setAttribute('fill', colorMap[n.type] || '#8AAABB');
-    circle.setAttribute('stroke', n.type === 'marca' ? '#E8B84B' : 'none');
-    circle.setAttribute('stroke-width', n.type === 'marca' ? '2' : '0');
-    circle.setAttribute('opacity', n.type === 'marca' ? '1' : '0.85');
+    circle.setAttribute('fill', n.type === 'marca' ? 'var(--primary)' : (n.type === 'atributo' ? 'var(--accent)' : colorMap[n.type]));
+    circle.setAttribute('filter', 'url(#glow)');
+    circle.setAttribute('opacity', n.type === 'marca' ? '1' : '0.8');
+    
+    // ANIMACIÓN DE PULSO si es Marca con Alto Peso
+    if (n.type === 'marca' && (n.weight > 50 || marcaNodes.length <= 3)) {
+      const animate = document.createElementNS('http://www.w3.org/2000/svg', 'animate');
+      animate.setAttribute('attributeName', 'r');
+      animate.setAttribute('values', `${radius};${radius+3};${radius}`);
+      animate.setAttribute('dur', '2s');
+      animate.setAttribute('repeatCount', 'indefinite');
+      circle.appendChild(animate);
+    }
+    
     g.appendChild(circle);
-
+    
+    // Etiqueta
     const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-    text.setAttribute('y', radius + 14);
+    text.setAttribute('x', n.x);
+    text.setAttribute('y', n.y + radius + 14);
     text.setAttribute('text-anchor', 'middle');
     text.setAttribute('font-size', n.type === 'marca' ? '11px' : '9px');
     text.setAttribute('font-weight', n.type === 'marca' ? '700' : '500');
-    text.setAttribute('fill', n.type === 'marca' ? '#E8B84B' : '#B8CDDE');
+    text.setAttribute('fill', n.type === 'marca' ? 'var(--primary)' : 'var(--dim)');
     text.setAttribute('font-family', "'DM Sans', sans-serif");
     text.textContent = n.label;
     g.appendChild(text);
@@ -1394,9 +1443,9 @@ function ciaRenderGraph(data, marcas) {
         return targetNode ? `→ ${targetNode.label} (${e.relation || 'relacionado'})` : '';
       }).filter(Boolean).join('<br>');
       
-      tooltip.innerHTML = `<div style="font-weight:700;color:${colorMap[n.type]};margin-bottom:4px;">${n.label}</div>`
-        + `<div style="font-size:10px;color:#8AAABB;margin-bottom:${connected ? '6px' : '0'};">Tipo: ${n.type} · Peso: ${n.weight||1}</div>`
-        + (connected ? `<div style="font-size:10px;color:#B8CDDE;line-height:1.6;">${connected}</div>` : '');
+      tooltip.innerHTML = `<div style="font-weight:700;color:var(--primary);margin-bottom:4px;">${n.label}</div>`
+        + `<div style="font-size:10px;color:var(--muted);margin-bottom:${connected ? '6px' : '0'};">Tipo: ${n.type} · Peso: ${n.weight||1}</div>`
+        + (connected ? `<div style="font-size:10px;color:var(--dim);line-height:1.6;">${connected}</div>` : '');
       
       tooltip.style.display = 'block';
       tooltip.style.left = (n.x + 20) + 'px';
