@@ -1173,28 +1173,37 @@ async function ciaBuildGraph(marcas, results, industria, pais) {
   
   // Helper function to sanitize JSON string
   function sanitizeJSON(str) {
-    let cleaned = str
-      // Remove markdown code fences
-      .replace(/```json\n?/g, '')
-      .replace(/```\n?/g, '')
-      // Remove any text before first { or after last }
-      .replace(/^[^{]*/, '')
-      .replace(/[^}]*$/, '')
-      .trim();
+    let cleaned = str.trim();
+    
+    // Remove markdown code fences (multiple patterns)
+    cleaned = cleaned
+      .replace(/^```json\s*/i, '')     // Opening fence with json
+      .replace(/^```\s*/, '')          // Opening fence without language
+      .replace(/\s*```$/, '')          // Closing fence
+      .replace(/```json/gi, '')        // Any remaining json markers
+      .replace(/```/g, '');            // Any remaining fences
+    
+    // Remove any text before first { or after last }
+    const firstBrace = cleaned.indexOf('{');
+    const lastBrace = cleaned.lastIndexOf('}');
+    
+    if (firstBrace === -1 || lastBrace === -1) {
+      return cleaned; // No braces found, return as is
+    }
+    
+    cleaned = cleaned.substring(firstBrace, lastBrace + 1);
     
     // Multiple passes to catch all trailing commas
     let prev = '';
-    while (prev !== cleaned) {
+    let iterations = 0;
+    while (prev !== cleaned && iterations < 5) {
       prev = cleaned;
       cleaned = cleaned
         // Remove trailing commas before closing brackets/braces
         .replace(/,(\s*[\]}])/g, '$1')
         // Remove multiple commas
-        .replace(/,+/g, ',')
-        // Fix spacing around colons
-        .replace(/\s*:\s*/g, ':')
-        // Normalize whitespace
-        .replace(/\s+/g, ' ');
+        .replace(/,+/g, ',');
+      iterations++;
     }
     
     return cleaned;
