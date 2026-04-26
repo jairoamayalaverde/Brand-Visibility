@@ -1158,32 +1158,57 @@ async function ciaBuildGraph(marcas, results, industria, pais) {
   const raw = await ciaGemini(pGraph(marcas, industria, pais, resumen));
   let data;
   
+  // Helper function to sanitize JSON string
+  function sanitizeJSON(str) {
+    return str
+      // Remove markdown code fences
+      .replace(/```json\n?/g, '')
+      .replace(/```\n?/g, '')
+      // Remove trailing commas before ] or }
+      .replace(/,(\s*[\]}])/g, '$1')
+      // Fix unquoted keys (common Gemini error)
+      .replace(/(\{|,)\s*([a-zA-Z_][a-zA-Z0-9_]*)\s*:/g, '$1"$2":')
+      // Remove any text before first { or after last }
+      .replace(/^[^{]*/, '')
+      .replace(/[^}]*$/, '')
+      .trim();
+  }
+  
+  // Strategy 1: Direct parse
   try { 
     data = JSON.parse(raw); 
   } catch(e) {
-    // Try to extract JSON from response - clean markdown fences first
-    const cleaned = raw.replace(/```json\n?/g, '').replace(/```\n?/g, '');
+    console.log('Strategy 1 failed, trying sanitization...');
+    
+    // Strategy 2: Sanitize and parse
     try {
+      const cleaned = sanitizeJSON(raw);
       data = JSON.parse(cleaned);
     } catch(e2) {
-      // Last resort: extract object with regex
-      const match = cleaned.match(/\{[\s\S]+\}/);
+      console.log('Strategy 2 failed, trying regex extraction...');
+      
+      // Strategy 3: Regex extraction then sanitize
+      const match = raw.match(/\{[\s\S]+\}/);
       if (match) {
         try {
-          data = JSON.parse(match[0]);
+          const sanitized = sanitizeJSON(match[0]);
+          data = JSON.parse(sanitized);
         } catch(e3) {
-          // If still failing, build minimal fallback graph
-          console.error('Graph parse failed:', e3);
+          console.error('All parsing strategies failed:', e3);
+          console.log('Raw response (first 500 chars):', raw.substring(0, 500));
+          
+          // Strategy 4: Fallback minimal graph
           data = {
             nodes: marcas.map((m, i) => ({id: 'n'+i, label: m, type: 'marca', weight: 5})),
             edges: [],
             semantic_authority: marcas.map(m => ({marca: m, nodos: 1, relaciones: 0, exclusivos: [], score: 50})),
-            insight_dominante: 'Datos insuficientes para análisis completo',
-            insight_fragmentacion: 'El grafo no pudo generarse correctamente',
-            oportunidad: 'Ejecutar de nuevo el estudio'
+            insight_dominante: 'Análisis de grafo no disponible en este momento',
+            insight_fragmentacion: 'El modelo devolvió un formato no válido',
+            oportunidad: 'Los resultados por modelo están completos y son válidos'
           };
         }
       } else {
+        console.error('No JSON object found in response');
         throw new Error('No se pudo extraer JSON del grafo');
       }
     }
