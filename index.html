@@ -1115,36 +1115,49 @@ const pR=(q,pais)=>`Eres un consumidor de ${pais} buscando información. Respond
 const pE=(q,marcas,pais)=>`Eres IA respondiendo a consumidor de ${pais}. Responde natural (3-5 oraciones): "${q}". Marcas: ${marcas.join(', ')}. SOLO JSON: {"respuesta":"...","marcas_mencionadas":["..."],"marca_primera":"...o null","recomienda_explicitamente":true,"tiene_datos_concretos":false}`;
 const pX=(resp,marcas)=>`Analiza esta respuesta e identifica cuáles de estas marcas aparecen mencionadas (explícita o implícitamente): "${resp.substring(0,800)}". Marcas a detectar: ${marcas.join(', ')}. Una marca "aparece" solo si el texto la nombra directamente o hace referencia inequívoca a ella. NO asumas menciones que no estén en el texto. SOLO JSON: {"marcas_mencionadas":["solo marcas que aparecen en el texto"],"marca_primera":"la primera marca mencionada en el texto o null","recomienda_explicitamente":false,"tiene_datos_concretos":false}`;
 const pI=(res,marcas,ind)=>`Analiza citabilidad en IA para "${ind}". ${res.slice(0,18).map(r=>'"'+r.pregunta.substring(0,45)+'..."→['+r.marcas_mencionadas.join(',')+']').join('\n')}. Marcas: ${marcas.join(',')}. SOLO JSON: {"marca_ganadora":"...","marca_perdedora":"...","hallazgo_principal":"max 25 palabras","patron_detectado":"max 28 palabras","recomendacion":"max 28 palabras"}`;
-const pGraph = (marcas, ind, pais, resumen) => `Eres un experto en análisis semántico de LLMs.
-Analiza este resumen de respuestas de IA sobre "${ind}" en ${pais}.
-Marcas evaluadas: ${marcas.join(', ')}.
+const pGraph = (marcas, ind, pais, resumen) => `Eres un sistema de extracción de datos JSON. Tu ÚNICA tarea es devolver JSON válido siguiendo la estructura exacta que se indica.
 
-Resumen de respuestas:
+DATOS DE ENTRADA:
+- Industria: ${ind}
+- País: ${pais}
+- Marcas: ${marcas.join(', ')}
+
+RESPUESTAS DE LLMs:
 ${resumen}
 
-Extrae el grafo semántico que los LLMs construyen. Para cada marca, identifica:
-- Categorías semánticas que activa (ej: "operador móvil", "telefonía")  
-- Atributos con que se asocia (ej: "cobertura", "precio", "velocidad")  
-- Entidades relacionadas (ej: grupo corporativo, país origen)
-- Relaciones entre marcas (ej: compiten en la misma categoría)
+INSTRUCCIONES OBLIGATORIAS:
+1. Responde SOLO con JSON válido
+2. NO agregues texto antes o después del JSON
+3. NO uses markdown (sin \`\`\`json)
+4. USA EXACTAMENTE esta estructura (copia los nombres de campos tal cual):
 
-CRÍTICO: Responde ÚNICAMENTE con el objeto JSON. Sin texto antes ni después. Sin markdown. Sin explicaciones.
-
-Estructura exacta:
 {
   "nodes": [
-    {"id":"n1","label":"Claro","type":"marca","weight":8}
+    {"id": "n1", "label": "${marcas[0]}", "type": "marca", "weight": 8},
+    {"id": "n2", "label": "categoría_ejemplo", "type": "categoria", "weight": 5}
   ],
   "edges": [
-    {"source":"n1","target":"n2","relation":"pertenece a","weight":3}
+    {"source": "n1", "target": "n2", "relation": "pertenece_a", "weight": 3}
   ],
   "semantic_authority": [
-    {"marca":"Claro","nodos":4,"relaciones":5,"exclusivos":["América Móvil"],"score":78}
+    {"marca": "${marcas[0]}", "nodos": 4, "relaciones": 5, "exclusivos": ["concepto_único"], "score": 78}
   ],
-  "insight_dominante": "frase de max 20 palabras",
-  "insight_fragmentacion": "frase de max 20 palabras",
-  "oportunidad": "frase de max 20 palabras"
-}`;
+  "insight_dominante": "Texto de máximo 20 palabras sobre dominancia de marca",
+  "insight_fragmentacion": "Texto de máximo 20 palabras sobre fragmentación",
+  "oportunidad": "Texto de máximo 20 palabras sobre oportunidad estratégica"
+}
+
+CAMPOS OBLIGATORIOS en cada objeto:
+- nodes: array con objetos {id, label, type, weight}
+- edges: array con objetos {source, target, relation, weight}
+- semantic_authority: array con objetos {marca, nodos, relaciones, exclusivos, score}
+- insight_dominante: string
+- insight_fragmentacion: string
+- oportunidad: string
+
+IMPORTANTE: Los nombres de los campos deben ser EXACTAMENTE como se muestran arriba. NO cambies "nodes" por "processed_entities" ni ningún otro nombre.
+
+Responde ahora con el JSON:`;
 
 // ── CITATION GRAPH ────────────────────────────────────────────────────────────
 async function ciaBuildGraph(marcas, results, industria, pais) {
