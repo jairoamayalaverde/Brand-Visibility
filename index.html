@@ -567,7 +567,7 @@
   <!-- ══ HEADER ══ -->
   <div class="cia-hdr">
     <div class="cia-logo"><div class="cia-logo-dot"></div>Brand <span>Citability</span></div>
-    <div class="cia-vtag">Multi-Modelo v2.1 · jairoamaya.co</div>
+    <div class="cia-vtag">v4.2 · jairoamaya.co</div>
   </div>
 
   <!-- ══ LAYOUT ══ -->
@@ -774,6 +774,7 @@
             <select id="cia-expfmt">
               <option value="json">JSON completo</option>
               <option value="csv">CSV ranking</option>
+              <option value="report">📄 Reporte HTML</option>
             </select>
           </div>
         </div>
@@ -845,9 +846,13 @@
             <div class="cia-res-title" id="cia-rtitle">Resultados</div>
             <div class="cia-res-meta" id="cia-rmeta"></div>
           </div>
-          <div style="display:flex;gap:8px;flex-shrink:0;">
-          <button class="cia-btn-exp" onclick="ciaExport()">↓ JSON/CSV</button>
-          <button class="cia-btn-exp" onclick="ciaPDF()" style="background:var(--gold);color:#0D1B2A;border-color:var(--gold);">↓ PDF</button>
+          <div style="display:flex;gap:8px;flex-shrink:0;align-items:center;">
+          <select id="cia-expfmt-inline" style="background:var(--surface);border:1px solid var(--border);color:var(--text);font-family:'DM Sans',sans-serif;font-size:12px;padding:8px 12px;border-radius:6px;outline:none;cursor:pointer;">
+            <option value="json">JSON</option>
+            <option value="csv">CSV</option>
+            <option value="report">📄 Reporte HTML</option>
+          </select>
+          <button class="cia-btn-exp" onclick="ciaExportInline()">📥 Exportar</button>
         </div>
         </div>
         <div class="cia-rtabs" id="cia-rtabs"></div>
@@ -873,13 +878,13 @@
             </div>
             <div style="padding:10px 16px;display:flex;gap:16px;flex-wrap:wrap;border-bottom:1px solid var(--border);">
               <div style="display:flex;align-items:center;gap:6px;font-size:11px;color:var(--dim);">
-                <div style="width:10px;height:10px;border-radius:50%;background:var(--gold);flex-shrink:0;"></div>Marca
+                <div style="width:10px;height:10px;border-radius:50%;background:var(--primary);flex-shrink:0;"></div>Marca
               </div>
               <div style="display:flex;align-items:center;gap:6px;font-size:11px;color:var(--dim);">
                 <div style="width:10px;height:10px;border-radius:50%;background:var(--blue);flex-shrink:0;"></div>Categoría
               </div>
               <div style="display:flex;align-items:center;gap:6px;font-size:11px;color:var(--dim);">
-                <div style="width:10px;height:10px;border-radius:50%;background:var(--muted);flex-shrink:0;"></div>Atributo
+                <div style="width:10px;height:10px;border-radius:50%;background:var(--accent);flex-shrink:0;"></div>Atributo
               </div>
               <div style="display:flex;align-items:center;gap:6px;font-size:11px;color:var(--dim);">
                 <div style="width:10px;height:10px;border-radius:50%;background:var(--green);flex-shrink:0;"></div>Entidad relacionada
@@ -983,6 +988,273 @@ const S = {
 };
 
 const el = id => document.getElementById(id);
+
+// ══════════════════════════════════════════════════════════════════════════════
+// ── ENRICHMENT FUNCTIONS v4.2 ─────────────────────────────────────────────────
+// Sistema de enriquecimiento comercial para metadata vendible
+// ══════════════════════════════════════════════════════════════════════════════
+
+/**
+ * Clasifica el volumen estimado basándose en palabras clave y bloque
+ */
+function classifyVolume(pregunta, bloque) {
+  const highVolKeywords = ['cómo', 'qué es', 'cuál', 'mejor', 'requisitos', 'tasas', 'gratis', 'cuáles son', 'dónde puedo'];
+  const medVolKeywords = ['dónde', 'cuándo', 'quién', 'por qué', 'quiénes'];
+  
+  const lower = pregunta.toLowerCase();
+  const hasHigh = highVolKeywords.some(kw => lower.includes(kw));
+  const hasMed = medVolKeywords.some(kw => lower.includes(kw));
+  
+  // Bloques B y E (6W y Evergreen) tienden a mayor volumen
+  if (bloque === 'B' || bloque === 'E') {
+    return hasHigh ? 'muy alto' : hasMed ? 'alto' : 'medio';
+  }
+  
+  // Bloques C y D (dirigidos y comparación) menor volumen pero mayor intención
+  if (bloque === 'C' || bloque === 'D') {
+    return 'medio';
+  }
+  
+  // Bloque A (agregador) volumen variable
+  return hasHigh ? 'alto' : 'medio';
+}
+
+/**
+ * Identifica la intención del usuario
+ */
+function classifyIntent(pregunta, bloque) {
+  const lower = pregunta.toLowerCase();
+  
+  // Transaccional
+  if (lower.includes('solicitar') || lower.includes('abrir') || lower.includes('contratar') || 
+      lower.includes('comprar') || lower.includes('adquirir')) {
+    return 'transaccional';
+  }
+  
+  // Comercial (comparación/investigación)
+  if (lower.includes('mejor') || lower.includes('comparar') || lower.includes(' vs ') || 
+      lower.includes('diferencia') || bloque === 'D') {
+    return 'comercial';
+  }
+  
+  // Navegacional (busca marca específica)
+  if (bloque === 'C') {
+    return 'navegacional';
+  }
+  
+  // Informacional (default)
+  return 'informacional';
+}
+
+/**
+ * Determina el valor de negocio
+ */
+function classifyBusinessValue(intent, bloque, volumen) {
+  // Transaccional + alto volumen = crítico
+  if (intent === 'transaccional' && (volumen === 'alto' || volumen === 'muy alto')) {
+    return 'critico';
+  }
+  
+  // Comercial (comparación) = alto valor
+  if (intent === 'comercial' || bloque === 'D') {
+    return 'alto';
+  }
+  
+  // Navegacional con marca específica = alto
+  if (intent === 'navegacional') {
+    return 'alto';
+  }
+  
+  // Informacional alto volumen = medio
+  if (intent === 'informacional' && volumen === 'muy alto') {
+    return 'medio';
+  }
+  
+  return 'bajo';
+}
+
+/**
+ * Sugiere formato ideal de respuesta
+ */
+function suggestFormat(pregunta, intent, bloque) {
+  const lower = pregunta.toLowerCase();
+  
+  if (lower.includes('requisitos') || lower.includes('pasos') || lower.includes('cómo')) {
+    return 'guia paso a paso';
+  }
+  
+  if (lower.includes('tasas') || lower.includes('interés') || lower.includes('cuánto') || lower.includes('precio')) {
+    return 'calculadora';
+  }
+  
+  if (bloque === 'D' || lower.includes('comparar') || lower.includes(' vs ') || lower.includes('diferencia')) {
+    return 'tabla comparativa';
+  }
+  
+  if (lower.includes('qué es') || lower.includes('qué son') || lower.includes('definición')) {
+    return 'definicion + faq';
+  }
+  
+  return 'articulo informativo';
+}
+
+/**
+ * FUNCIÓN PRINCIPAL: Enriquece una pregunta con metadata comercial
+ */
+function enrichQuestion(pregunta, bloque) {
+  const volumen = classifyVolume(pregunta, bloque);
+  const intent = classifyIntent(pregunta, bloque);
+  const valorNegocio = classifyBusinessValue(intent, bloque, volumen);
+  const formatoIdeal = suggestFormat(pregunta, intent, bloque);
+  
+  // Scoring numérico para priorización (0-100)
+  const volumenPoints = volumen === 'muy alto' ? 40 : volumen === 'alto' ? 30 : volumen === 'medio' ? 20 : 10;
+  const valorPoints = valorNegocio === 'critico' ? 30 : valorNegocio === 'alto' ? 20 : valorNegocio === 'medio' ? 10 : 5;
+  const intentPoints = intent === 'transaccional' ? 20 : intent === 'comercial' ? 15 : intent === 'navegacional' ? 10 : 5;
+  
+  return {
+    volumen_estimado: volumen,
+    intento: intent,
+    valor_negocio: valorNegocio,
+    formato_ideal: formatoIdeal,
+    score_comercial: volumenPoints + valorPoints + intentPoints
+  };
+}
+
+/**
+ * Calcula performance comercial de una marca
+ */
+function calculatePerformance(marca, ranking, totalPreguntas, todasLasMarcas) {
+  const marcaData = ranking.find(r => r.marca === marca);
+  if (!marcaData) return null;
+  
+  const menciones = marcaData.menciones || 0;
+  const mencionesOrg = marcaData.organico || 0;
+  const mencionesDir = marcaData.dirigido || 0;
+  const primeraOrg = marcaData.primera_org || 0;
+  const primeraDir = marcaData.primera_dir || 0;
+  const primera = marcaData.primera || 0;
+  
+  // Share of Voice
+  const totalMenciones = ranking.reduce((sum, r) => sum + (r.menciones || 0), 0);
+  const shareOfVoice = totalMenciones > 0 ? (menciones / totalMenciones) : 0;
+  
+  // Menciones perdidas
+  const mencionesPerdidas = totalPreguntas - menciones;
+  
+  // Gap vs líder
+  const rankingSorted = [...ranking].sort((a, b) => (b.menciones || 0) - (a.menciones || 0));
+  const lider = rankingSorted[0];
+  const esLider = lider && marca === lider.marca;
+  const gapVsLider = esLider ? 0 : (lider ? lider.menciones - menciones : 0);
+  const gapPorcentual = menciones > 0 && !esLider ? Math.round((gapVsLider / menciones) * 100) : 0;
+  
+  // Volumen perdido estimado
+  const pctPerdido = totalPreguntas > 0 ? mencionesPerdidas / totalPreguntas : 0;
+  const volumenPerdido = pctPerdido > 0.6 ? 'muy alto' : pctPerdido > 0.4 ? 'alto' : pctPerdido > 0.2 ? 'medio' : 'bajo';
+  
+  return {
+    share_of_voice: Math.round(shareOfVoice * 1000) / 1000,
+    share_of_voice_pct: Math.round(shareOfVoice * 100),
+    gap_vs_lider: gapVsLider,
+    gap_porcentual: gapPorcentual,
+    es_lider: esLider,
+    menciones_perdidas: mencionesPerdidas,
+    pct_perdido: Math.round(pctPerdido * 100),
+    volumen_perdido_estimado: volumenPerdido,
+    
+    // Eficiencia de citabilidad
+    eficiencia_organica: mencionesOrg > 0 ? Math.round((primeraOrg / mencionesOrg) * 100) : 0,
+    eficiencia_dirigida: mencionesDir > 0 ? Math.round((primeraDir / mencionesDir) * 100) : 0,
+    eficiencia_total: menciones > 0 ? Math.round((primera / menciones) * 100) : 0
+  };
+}
+
+/**
+ * Genera commercial insights globales
+ */
+function generateCommercialInsights(resultados, preguntas, marcas) {
+  // Detectar preguntas sin ninguna marca mencionada
+  const preguntasSinMarca = [];
+  const preguntasConMarca = [];
+  
+  resultados.forEach(r => {
+    if (!r.marcas_mencionadas || r.marcas_mencionadas.length === 0) {
+      preguntasSinMarca.push({
+        id: r.id,
+        pregunta: r.pregunta,
+        bloque: r.bloque,
+        metadata: r.metadata || {}
+      });
+    } else {
+      preguntasConMarca.push(r);
+    }
+  });
+  
+  // Quick wins: preguntas sin marca con alto score comercial
+  const quickWins = preguntasSinMarca
+    .map(p => ({
+      pregunta_id: p.id,
+      pregunta: p.pregunta,
+      bloque: p.bloque,
+      score: p.metadata.score_comercial || 0,
+      volumen: p.metadata.volumen_estimado || 'medio',
+      formato: p.metadata.formato_ideal || 'articulo',
+      valor_negocio: p.metadata.valor_negocio || 'bajo',
+      razon: 'Ninguna marca citada + ' + (p.metadata.volumen_estimado || 'volumen medio')
+    }))
+    .sort((a, b) => b.score - a.score)
+    .slice(0, 5);
+  
+  // Detectar amenaza competitiva
+  const mencionesTotales = {};
+  preguntasConMarca.forEach(r => {
+    if (r.marca_primera) {
+      mencionesTotales[r.marca_primera] = (mencionesTotales[r.marca_primera] || 0) + 1;
+    }
+  });
+  
+  const liderMenciones = Object.entries(mencionesTotales).sort((a, b) => b[1] - a[1])[0];
+  const amenaza = liderMenciones ? {
+    marca: liderMenciones[0],
+    primeras_menciones: liderMenciones[1],
+    dominancia_pct: preguntasConMarca.length > 0 ? Math.round((liderMenciones[1] / preguntasConMarca.length) * 100) : 0
+  } : null;
+  
+  // Distribución por bloque
+  const dist = {
+    A: preguntasSinMarca.filter(p => p.bloque === 'A').length,
+    B: preguntasSinMarca.filter(p => p.bloque === 'B').length,
+    C: preguntasSinMarca.filter(p => p.bloque === 'C').length,
+    D: preguntasSinMarca.filter(p => p.bloque === 'D').length,
+    E: preguntasSinMarca.filter(p => p.bloque === 'E').length
+  };
+  const bloqueMayorOp = Object.entries(dist).sort((a, b) => b[1] - a[1])[0];
+  
+  return {
+    total_preguntas_sin_marca: preguntasSinMarca.length,
+    pct_preguntas_sin_marca: Math.round((preguntasSinMarca.length / preguntas.length) * 100),
+    oportunidad_principal: preguntasSinMarca.length > preguntas.length * 0.5 
+      ? 'Territorio Baldío masivo - Alto potencial de colonización'
+      : preguntasSinMarca.length > preguntas.length * 0.3
+      ? 'Oportunidad significativa en contenido evergreen'
+      : 'Optimización de presencia existente',
+    quick_wins: quickWins,
+    amenaza_competitiva: amenaza,
+    distribucion_bloques: dist,
+    bloque_mayor_oportunidad: bloqueMayorOp ? bloqueMayorOp[0] : 'N/A',
+    bloques_detalle: Object.entries(dist).map(([bloque, cant]) => ({
+      bloque,
+      cantidad: cant,
+      pct: Math.round((cant / preguntasSinMarca.length) * 100) || 0
+    })).sort((a, b) => b.cantidad - a.cantidad)
+  };
+}
+
+// ══════════════════════════════════════════════════════════════════════════════
+// ── END ENRICHMENT FUNCTIONS ──────────────────────────────────────────────────
+// ══════════════════════════════════════════════════════════════════════════════
+
 
 // ── TABS ─────────────────────────────────────────────────────────────────────
 function ciaTab(t) {
@@ -1294,17 +1566,17 @@ function ciaRenderGraph(data, marcas) {
   svg.innerHTML = `
     <defs>
       <linearGradient id="grad1" x1="0%" y1="0%" x2="100%" y2="0%">
-        <stop offset="0%" style="stop-color:var(--primary);stop-opacity:0.8" />
-        <stop offset="100%" style="stop-color:var(--accent);stop-opacity:0.2" />
+        <stop offset="0%" style="stop-color:#9d4edd;stop-opacity:0.8" />
+        <stop offset="100%" style="stop-color:#FFD60A;stop-opacity:0.2" />
       </linearGradient>
       <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
-        <feGaussianBlur stdDeviation="2" result="blur"/>
+        <feGaussianBlur stdDeviation="3" result="blur"/>
         <feComposite in="SourceGraphic" in2="blur" operator="over"/>
       </filter>
     </defs>
   `;
 
-  const colorMap = { marca:'var(--primary)', categoria:'var(--blue)', atributo:'var(--muted)', entidad:'var(--green)' };
+  const colorMap = { marca:'#9d4edd', categoria:'#3B82F6', atributo:'#FFD60A', entidad:'#22C55E' };
   const nodeMap = {};
   
   data.nodes.forEach(n => { 
@@ -1375,10 +1647,10 @@ function ciaRenderGraph(data, marcas) {
     circle.setAttribute('cy', centerY);
     circle.setAttribute('r', r);
     circle.setAttribute('fill', 'none');
-    circle.setAttribute('stroke', '#2a2a32');
-    circle.setAttribute('stroke-dasharray', '4 4');
-    circle.setAttribute('stroke-width', '0.5');
-    circle.setAttribute('opacity', '0.3');
+    circle.setAttribute('stroke', '#3a3a42');
+    circle.setAttribute('stroke-dasharray', '6 3');
+    circle.setAttribute('stroke-width', '1');
+    circle.setAttribute('opacity', '0.4');
     svg.appendChild(circle);
   });
 
@@ -1406,9 +1678,9 @@ function ciaRenderGraph(data, marcas) {
     circle.setAttribute('cx', n.x);
     circle.setAttribute('cy', n.y);
     circle.setAttribute('r', radius);
-    circle.setAttribute('fill', n.type === 'marca' ? 'var(--primary)' : (n.type === 'atributo' ? 'var(--accent)' : colorMap[n.type]));
+    circle.setAttribute('fill', n.type === 'marca' ? '#9d4edd' : (n.type === 'atributo' ? '#FFD60A' : colorMap[n.type]));
     circle.setAttribute('filter', 'url(#glow)');
-    circle.setAttribute('opacity', n.type === 'marca' ? '1' : '0.8');
+    circle.setAttribute('opacity', n.type === 'marca' ? '1' : '0.85');
     
     // ANIMACIÓN DE PULSO si es Marca con Alto Peso
     if (n.type === 'marca' && (n.weight > 50 || marcaNodes.length <= 3)) {
@@ -1429,7 +1701,7 @@ function ciaRenderGraph(data, marcas) {
     text.setAttribute('text-anchor', 'middle');
     text.setAttribute('font-size', n.type === 'marca' ? '11px' : '9px');
     text.setAttribute('font-weight', n.type === 'marca' ? '700' : '500');
-    text.setAttribute('fill', n.type === 'marca' ? 'var(--primary)' : 'var(--dim)');
+    text.setAttribute('fill', n.type === 'marca' ? '#9d4edd' : '#c8c8cd');
     text.setAttribute('font-family', "'DM Sans', sans-serif");
     text.textContent = n.label;
     g.appendChild(text);
@@ -1532,7 +1804,16 @@ async function ciaRun() {
     }
     S.preguntas=qd.preguntas||[];
     if(!S.preguntas.length) throw new Error('No se generaron preguntas');
-    ciaStep(1,'done',S.preguntas.length+' preguntas');
+    
+    // ── ENRIQUECIMIENTO DE PREGUNTAS v4.2 ──
+    ciaLog('→ Enriqueciendo preguntas con metadata comercial...','step');
+    S.preguntas = S.preguntas.map(p => ({
+      ...p,
+      metadata: enrichQuestion(p.pregunta, p.bloque)
+    }));
+    ciaLog('✓ Metadata comercial agregada a '+S.preguntas.length+' preguntas','ok');
+    
+    ciaStep(1,'done',S.preguntas.length+' preguntas enriquecidas');
     ciaLog('✓ '+S.preguntas.length+' preguntas generadas','ok');
 
     // PASO 2
@@ -1654,13 +1935,13 @@ async function ciaRun() {
             if(esOrganico) menciones[mp].primera_org++;
             else menciones[mp].primera_dir++;
           }
-          resultados.push({id:q.id,bloque:q.bloque,pregunta:q.pregunta,respuesta:rawR,marcas_mencionadas:mm,marca_primera:mp});
+          resultados.push({id:q.id,bloque:q.bloque,pregunta:q.pregunta,metadata:q.metadata,respuesta:rawR,marcas_mencionadas:mm,marca_primera:mp});
           el(`cia-qs-${mid}-${qi}`).textContent='✓';
           qli.style.borderLeftColor='var(--green)';
         }catch(err){
           ciaLog('  ⚠ '+mname+' Q'+(qi+1)+': '+err.message,'warn');
           el(`cia-qs-${mid}-${qi}`).textContent='⚠';
-          resultados.push({id:q.id,bloque:q.bloque,pregunta:q.pregunta,respuesta:'',marcas_mencionadas:[],marca_primera:null});
+          resultados.push({id:q.id,bloque:q.bloque,pregunta:q.pregunta,metadata:q.metadata,respuesta:'',marcas_mencionadas:[],marca_primera:null});
         }
         await new Promise(r=>setTimeout(r,delay));
       }
@@ -1679,7 +1960,15 @@ async function ciaRun() {
         pct_dirigido: totalDir>0 ? Math.round(menciones[m].dirigido/totalDir*100) : 0,
         primera_dir: menciones[m].primera_dir,
       })).sort((a,b)=>b.organico-a.organico);
-      const maxM=ranking[0]?.organico||1, totalQ=resultados.length;
+      
+      const totalQ=resultados.length;
+      const maxM=ranking[0]?.organico||1;
+      
+      // ── ENRIQUECIMIENTO DE RANKING CON PERFORMANCE v4.2 ──
+      const rankingEnriquecido = ranking.map(r => ({
+        ...r,
+        performance: calculatePerformance(r.marca, ranking, totalQ, marcas)
+      }));
 
       el('cia-rb-'+mid).style.display='block';
       ranking.forEach((item,i)=>{
@@ -1727,7 +2016,12 @@ async function ciaRun() {
         el('cia-dtb-'+mid).appendChild(tr);
       });
 
-      S.results[mid]={name:mname,resultados,ranking,insights:ins,totalQ,totalOrg,totalDir};
+      // ── GENERAR COMMERCIAL INSIGHTS v4.2 ──
+      ciaLog('→ Generando commercial insights...','step');
+      const commercialInsights = generateCommercialInsights(resultados, S.preguntas, marcas);
+      ciaLog('✓ Commercial insights: '+commercialInsights.total_preguntas_sin_marca+' preguntas sin marca, '+commercialInsights.quick_wins.length+' quick wins','ok');
+
+      S.results[mid]={name:mname,resultados,ranking:rankingEnriquecido,insights:ins,totalQ,totalOrg,totalDir,commercial_insights:commercialInsights};
       ciaLog('✓ '+mname+': '+gan?.marca+' lidera ('+gan?.menciones+')','ok');
     }
 
@@ -1803,6 +2097,64 @@ function ciaCross(marcas,mods){
 }
 
 // ── EXPORT & PDF (CONTINUARÁ EN SIGUIENTE MENSAJE) ───────────────────────────
+// ── GENERATE HTML REPORT ──────────────────────────────────────────────────────
+function ciaGenerateReport() {
+  if (!S.results || Object.keys(S.results).length === 0) {
+    alert('No hay resultados para exportar. Ejecuta un análisis primero.');
+    return;
+  }
+  
+  const reportData = {
+    config: {
+      industria: el('cia-industria').value === 'custom' ? el('cia-ind-custom').value : el('cia-industria').value,
+      pais: el('cia-pais').value,
+      marcas: el('cia-marcas').value.trim().split('\n').map(m => m.trim()).filter(Boolean),
+      preguntas: el('cia-nq').value,
+      version: '4.2.0-enriched',
+      enrichment_enabled: true
+    },
+    preguntas: S.preguntas,
+    results: S.results,
+    graph: S.graphData,
+    fecha: new Date().toISOString()
+  };
+  
+  // Cargar template desde servidor (ruta relativa se adapta a Vercel o subdominio)
+  const templateURL = window.location.origin + '/report-template-pro.html';
+  fetch(templateURL)
+    .then(response => response.text())
+    .then(templateHTML => {
+      // Inyectar datos JSON en el template
+      const htmlWithData = templateHTML.replace(
+        '</body>',
+        '<scr' + 'ipt>\nwindow.REPORT_DATA = ' + JSON.stringify(reportData, null, 2) + ';\n</scr' + 'ipt>\n</body>'
+      );
+      
+      // Descargar HTML standalone
+      const blob = new Blob([htmlWithData], { type: 'text/html' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `report-citability-${Date.now()}.html`;
+      a.click();
+      URL.revokeObjectURL(url);
+      
+      ciaLog('✓ Reporte HTML generado','ok');
+    })
+    .catch(err => {
+      console.error('Error loading template:', err);
+      alert('Error al cargar el template. Asegúrate de tener report-template-pro.html en tu servidor.');
+    });
+}
+
+// ── EXPORT INLINE (desde botón en resultados) ────────────────────────────────
+function ciaExportInline() {
+  // Sincronizar con el selector de Config
+  const fmt = el('cia-expfmt-inline').value;
+  el('cia-expfmt').value = fmt;
+  ciaExport();
+}
+
 function ciaExport() {
   const fmt = el('cia-expfmt').value;
   if (fmt === 'json') {
@@ -1811,19 +2163,24 @@ function ciaExport() {
         industria: el('cia-industria').value === 'custom' ? el('cia-ind-custom').value : el('cia-industria').value,
         pais: el('cia-pais').value,
         marcas: el('cia-marcas').value.trim().split('\n').map(m => m.trim()).filter(Boolean),
-        preguntas: el('cia-nq').value
+        preguntas: el('cia-nq').value,
+        version: '4.2.0-enriched',
+        enrichment_enabled: true
       },
-      preguntas: S.preguntas,
-      results: S.results,
+      preguntas: S.preguntas, // Ya incluyen metadata
+      results: S.results, // Ya incluyen ranking enriquecido y commercial_insights
       graph: S.graphData,
       fecha: new Date().toISOString()
     }, null, 2)], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = 'citabilidad-ia-' + Date.now() + '.json';
+    a.download = 'citabilidad-enriched-' + Date.now() + '.json';
     a.click();
     URL.revokeObjectURL(url);
+  } else if (fmt === 'report') {
+    // GENERAR REPORTE HTML STANDALONE
+    ciaGenerateReport();
   } else {
     let csv = 'Modelo,Marca,Menciones,Primera,% Aparición,% Liderazgo\n';
     Object.entries(S.results).forEach(([mid, data]) => {
