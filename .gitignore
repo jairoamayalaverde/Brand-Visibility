@@ -1,0 +1,4 @@
+# Proxies con credenciales
+proxies/*.php
+gemini-proxy.php
+claude-proxy.php
