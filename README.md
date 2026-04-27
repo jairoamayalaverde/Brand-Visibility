@@ -1,6 +1,6 @@
-# 🎯 Brand Citability v2.1
+# 🎯 Brand Citability v4.2
 
-**Herramienta multi-modelo para medir citaciones de marca en respuestas de Large Language Models**
+**Herramienta multi-modelo para medir citaciones de marca en respuestas de Large Language Models con enriquecimiento comercial**
 
 [![Deploy con Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/jairoamaya/brand-citability)
 
@@ -13,13 +13,15 @@
 
 **Brand Citability** es el grado en que una marca aparece mencionada cuando usuarios consultan Large Language Models (Claude, ChatGPT, Gemini, Perplexity) sobre productos o servicios de su industria.
 
-Esta herramienta evalúa:
+### ✨ **NUEVO en v4.2: Enriquecimiento Comercial**
 
-- ✅ **Citabilidad orgánica**: % de veces que la marca aparece sin ser nombrada en la pregunta
-- ✅ **Liderazgo semántico**: % de veces que la marca es mencionada primero
-- ✅ **Autoridad dirigida**: Desempeño cuando la marca es consultada directamente
-- ✅ **Citation Graph**: Grafo semántico de relaciones marca-categoría-atributos
-- ✅ **Comparativa multi-modelo**: Gemini vs Claude vs ChatGPT vs Perplexity
+Además del análisis básico de citabilidad, la v4.2 incluye:
+
+- **🎯 Score Comercial por Pregunta**: Clasifica cada pregunta por volumen estimado, intento de búsqueda, valor de negocio y formato ideal
+- **📊 Performance Metrics**: Share of voice, gap vs líder, menciones perdidas, eficiencias orgánica/dirigida/total
+- **🚀 Quick Wins**: Identifica oportunidades de territorio baldío (preguntas sin competencia)
+- **⚔️ Amenaza Competitiva**: Detecta cuál competidor domina las primeras menciones
+- **📄 Reportes HTML Profesionales**: Genera reportes standalone para clientes con diseño editorial
 
 ---
 
@@ -33,33 +35,52 @@ cd brand-citability
 vercel --prod
 ```
 
-### Opción 2: GitHub Pages
+**Configurar subdominio personalizado:**
+1. Vercel Dashboard → Tu proyecto → Settings → Domains
+2. Add Domain: `citability.tudominio.com`
+3. Agregar CNAME en tu DNS apuntando a `cname.vercel-dns.com`
 
-1. Fork este repo
-2. Settings → Pages → Source: rama `main`
-3. Listo: `https://tu-usuario.github.io/brand-citability`
-
-### Opción 3: Local
+### Opción 2: Self-hosted
 
 ```bash
-# Abrir directamente
-open index.html
+# Subir archivos al servidor
+brand-citability-production.html
+report-template-pro.html
+gemini-proxy.php
+claude-proxy.php
 
-# O con servidor local
+# Acceder vía: https://tudominio.com/brand-citability-production.html
+```
+
+### Opción 3: Local (desarrollo)
+
+```bash
+# Servidor local
 python3 -m http.server 8000
-# Abrir http://localhost:8000
+# Abrir http://localhost:8000/brand-citability-production.html
 ```
 
 ---
 
 ## 🔧 Configuración
 
-### API Keys
+### 1. Proxies PHP
 
-**Claude (recomendado):**
-- Requiere proxy PHP para evitar CORS
-- Proxy incluido en `claude-proxy.php`
-- Deploy proxy en tu servidor y actualiza URL en Config
+**Gemini Proxy** (`gemini-proxy.php`):
+```php
+$apiKey = 'TU_GEMINI_API_KEY'; // Google AI Studio
+$model = 'gemini-2.5-flash';
+```
+
+**Claude Proxy** (`claude-proxy.php`):
+```php
+$apiKey = 'TU_ANTHROPIC_API_KEY'; // console.anthropic.com
+$model = 'claude-sonnet-4-6';
+```
+
+Despliega ambos proxies en tu servidor y actualiza las URLs en la pestaña **Config** de la herramienta.
+
+### 2. API Keys (Modelos Adicionales)
 
 **ChatGPT:**
 - API key de OpenAI: https://platform.openai.com/api-keys
@@ -69,16 +90,9 @@ python3 -m http.server 8000
 - API key: https://www.perplexity.ai/settings/api
 - Modelo: `sonar-pro`
 
-**Gemini (sin API key):**
-- Usa proxy público en `jairoamaya.co/gemini-proxy.php`
-- O despliega tu propio proxy
+### 3. Supabase (Persistencia)
 
-### Supabase (persistencia)
-
-Los estudios se guardan en Supabase. Para usar tu propia instancia:
-
-1. Crea proyecto en https://supabase.com
-2. Ejecuta schema SQL:
+Crea proyecto en https://supabase.com y ejecuta:
 
 ```sql
 CREATE TABLE cia_estudios (
@@ -98,7 +112,7 @@ CREATE INDEX idx_cia_created ON cia_estudios(created_at DESC);
 CREATE INDEX idx_cia_industria ON cia_estudios(industria);
 ```
 
-3. Actualiza credenciales en `index.html`:
+Actualiza credenciales en `brand-citability-production.html` (líneas 1777-1778):
 
 ```javascript
 const CIA_SB_URL = 'https://TU-PROYECTO.supabase.co';
@@ -111,6 +125,7 @@ const CIA_SB_KEY = 'TU_ANON_KEY';
 
 ### 1. Configurar Estudio
 
+**Pestaña Estudio:**
 - **Industria**: Retail, Banca, Salud, Tecnología, o personalizada
 - **Marcas**: Mínimo 2, máximo 10 (una por línea)
 - **País**: Colombia, México, España, etc.
@@ -118,45 +133,46 @@ const CIA_SB_KEY = 'TU_ANON_KEY';
 
 ### 2. Activar Modelos
 
-En la pestaña **Modelos**, activa los LLMs que quieres incluir:
+**Pestaña Modelos** — activa los LLMs que quieres incluir:
 
-- **Gemini** ✦ (siempre disponible vía proxy)
-- **Claude** ◎ (requiere proxy PHP)
-- **ChatGPT** 💬 (requiere API key OpenAI)
-- **Perplexity** ◈ (requiere API key)
+- **Gemini** ✦ (vía proxy PHP)
+- **Claude** ◎ (vía proxy PHP)
+- **ChatGPT** 💬 (API key OpenAI)
+- **Perplexity** ◈ (API key)
+- **Custom** ⊕ (cualquier endpoint compatible OpenAI)
 
-Cada modelo puede ejecutarse en:
+Cada modelo tiene 3 modos:
 - **API Auto**: llamadas automáticas
 - **Manual**: copias pregunta, pegas respuesta
-- **Simulado**: Gemini simula responder como consumidor
+- **Simulado**: Gemini simula responder como consumidor (solo Gemini)
 
 ### 3. Ejecutar
 
 Click en **⚡ Ejecutar Estudio**
 
 **Workflow (5 pasos):**
-1. Genera preguntas (5 bloques: A→B→C→D→E)
-2. Evalúa con cada modelo activado
-3. Extrae menciones y marca primera
-4. Construye ranking de citabilidad
-5. Genera Citation Graph semántico
+1. ✅ Genera preguntas (bloques A→B→C→D→E)
+2. ✅ Evalúa con cada modelo activado
+3. ✅ Extrae menciones + enriquecimiento comercial
+4. ✅ Construye ranking con performance metrics
+5. ✅ Genera Citation Graph semántico
 
 ### 4. Resultados
 
-Cada modelo muestra:
-- **Ranking de citabilidad** (orgánico vs dirigido)
-- **Hallazgo principal** + patrón + recomendación
-- **Detalle por marca** con nivel (Alta/Media/Baja)
+**Por cada modelo:**
+- Ranking de citabilidad (orgánico vs dirigido)
+- Hallazgo principal + patrón detectado + recomendación
+- Detalle por marca con nivel (Alta/Media/Baja)
 
-**Comparativa multi-modelo** muestra:
-- Tabla cruzada de menciones por marca
+**Comparativa multi-modelo:**
+- Tabla cruzada de menciones
 - Citation Graph interactivo (SVG)
-- Semantic Authority score por marca
+- Semantic Authority score
 
 **Exportar:**
-- JSON completo (preguntas + respuestas + grafo)
-- CSV ranking
-- **PDF profesional** (cover + resultados + metodología)
+- **JSON enriquecido** (con metadata comercial completa)
+- **CSV ranking** (menciones, primera, % aparición, % liderazgo)
+- **📄 Reporte HTML** (standalone con diseño editorial profesional)
 
 ---
 
@@ -164,39 +180,60 @@ Cada modelo muestra:
 
 ### Bloques de Preguntas
 
-El estudio genera preguntas en 5 categorías:
-
 - **Bloque A** (20%): Intención general — "¿Cuáles son los mejores bancos?"
 - **Bloque B** (20%): Conversacional 6W — Quién/Qué/Dónde/Cuándo/Cómo/Por qué
 - **Bloque C** (20%): Consulta directa — "¿Qué ofrece Bancolombia?"
 - **Bloque D** (20%): Comparaciones — "Bancolombia vs Davivienda"
 - **Bloque E** (20%): Evergreen — "¿Cómo elegir un banco?"
 
-**CRÍTICO**: Los bloques A, B y E **NO mencionan marcas** en las preguntas → miden citabilidad orgánica pura.
+**CRÍTICO**: Los bloques A, B y E **NO mencionan marcas** → miden citabilidad orgánica pura.
 
-### Extracción de Menciones
+### Enriquecimiento Comercial (v4.2)
 
-Usa **triple estrategia**:
+Cada pregunta recibe metadata:
 
-1. Parse JSON del modelo (si devuelve `marcas_mencionadas`)
-2. Word-overlap con normalización (maneja variantes: "Bancolombia S.A." → "Bancolombia")
-3. Regex con word boundaries para detectar menciones textuales
+```json
+{
+  "volumen_estimado": "muy alto|alto|medio|bajo",
+  "intento": "transaccional|comercial|navegacional|informacional",
+  "valor_negocio": "critico|alto|medio|bajo",
+  "formato_ideal": "calculadora|guia|comparativa|FAQ|articulo",
+  "score_comercial": 0-100
+}
+```
 
-### Citation Graph
+Cada marca recibe performance metrics:
 
-Gemini analiza las respuestas y construye un grafo semántico con:
+```json
+{
+  "share_of_voice_pct": 38,
+  "gap_vs_lider": 0,
+  "menciones_perdidas": 17,
+  "eficiencia_organica": 100,
+  "eficiencia_dirigida": 43,
+  "eficiencia_total": 63
+}
+```
 
-- **Nodos**: marcas, categorías, atributos, entidades
-- **Edges**: relaciones (pertenece_a, compite_con, se_asocia_con)
-- **Semantic Authority**: score por marca según nodos activados + conceptos exclusivos
+### Commercial Insights Globales
 
-**Fallback robusto**: Si Gemini devuelve JSON malformado, la herramienta construye un grafo mínimo válido y completa el estudio.
+```json
+{
+  "total_preguntas_sin_marca": 11,
+  "pct_preguntas_sin_marca": 55,
+  "oportunidad_principal": "Territorio Baldío masivo",
+  "quick_wins": [/* top 5 por score */],
+  "amenaza_competitiva": {
+    "marca": "Bancolombia",
+    "primeras_menciones": 5,
+    "dominancia_pct": 50
+  }
+}
+```
 
 ---
 
 ## 🎨 Frameworks Propietarios
-
-Esta herramienta implementa los siguientes frameworks de Jairo Amaya:
 
 ### 1. **Agentive Visibility**
 Mide qué tan visible es una marca cuando agentes IA responden preguntas de usuarios reales.
@@ -208,22 +245,23 @@ Control sobre el espacio semántico que una marca activa en modelos de lenguaje.
 Metodología de auditoría multi-capa para detectar gaps entre calidad técnica e inteligibilidad para IA.
 
 ### 4. **4 Territorios Semánticos**
-Framework para clasificar presencia de marca en respuestas IA:
-- Territorio 1: Mención espontánea
-- Territorio 2: Mención tras consulta directa
-- Territorio 3: Mención en comparativa
-- Territorio 4: Ausencia total
+- **Territorio 1**: Mención espontánea (orgánica)
+- **Territorio 2**: Mención tras consulta directa
+- **Territorio 3**: Mención en comparativa
+- **Territorio 4**: Ausencia total (territorio baldío)
 
 ---
 
 ## 🛠️ Stack Técnico
 
-- **Frontend**: HTML5, CSS3 (custom design system), Vanilla JavaScript
-- **Visualización**: SVG nativo (grafo force-directed)
-- **Persistencia**: Supabase (PostgreSQL)
-- **APIs**: Anthropic Claude, OpenAI GPT-4o, Google Gemini, Perplexity
-- **Export**: JSON, CSV, PDF (generación client-side)
-- **Deploy**: Vercel, GitHub Pages, o self-hosted
+- **Frontend**: HTML5, CSS3 (custom premium design system), Vanilla JavaScript
+- **Visualización**: SVG nativo (force-directed graph)
+- **Persistencia**: Supabase (PostgreSQL + JSONB)
+- **APIs**: Anthropic Claude, OpenAI GPT-4o, Google Gemini 2.5, Perplexity Sonar
+- **Export**: JSON enriquecido, CSV, HTML reports
+- **Deploy**: Vercel (recomendado), self-hosted PHP
+
+**Sin dependencias externas** — cero npm packages, cero frameworks.
 
 ---
 
@@ -231,13 +269,11 @@ Framework para clasificar presencia de marca en respuestas IA:
 
 ```
 brand-citability/
-├── index.html              # Aplicación completa (HTML + CSS + JS)
-├── claude-proxy.php        # Proxy CORS para API Claude
-├── gemini-proxy.php        # Proxy para Google Gemini
-├── package.json
+├── brand-citability-production.html    # Herramienta principal (v4.2)
+├── report-template-pro.html            # Template reportes HTML
+├── claude-proxy.php                    # Proxy CORS para Claude API
+├── gemini-proxy.php                    # Proxy para Google Gemini
 ├── README.md
-├── DEPLOY.md               # Guía de deployment
-├── BRANDING.md             # Estrategia de marca
 ├── LICENSE
 └── .gitignore
 ```
@@ -246,29 +282,63 @@ brand-citability/
 
 ## 🔐 Seguridad
 
-- ❌ **NO** incluyas API keys en el código fuente
-- ✅ Usa variables de entorno para producción
-- ✅ Los proxies PHP validan origen y rate-limit
-- ✅ Supabase usa Row Level Security (RLS)
-- ✅ Los datos de estudios son privados por usuario
+### Para Uso Personal (Repo Privado)
 
-**Para deploy público**:
-- Implementa autenticación (Supabase Auth)
-- Habilita RLS en tabla `cia_estudios`
-- Rate-limit en proxies PHP
+✅ OK incluir API keys hardcodeadas en archivos `.php`  
+✅ Configurar repo como **PRIVADO** en GitHub  
+✅ Supabase keys pueden ir en el HTML si es uso exclusivo tuyo
+
+### Para Deploy Público
+
+❌ **NUNCA** incluyas API keys en código fuente público  
+✅ Mover credenciales a variables de entorno  
+✅ Implementar rate limiting en proxies PHP  
+✅ Habilitar Row Level Security (RLS) en Supabase
+
+**Ejemplo: Variables de entorno en PHP**
+```php
+// gemini-proxy.php
+$apiKey = getenv('GEMINI_API_KEY') ?: 'fallback-key';
+```
+
+```bash
+# .htaccess
+SetEnv GEMINI_API_KEY "tu-api-key-aqui"
+```
+
+---
+
+## 💼 Modelo de Negocio
+
+### Como Herramienta Interna (Done-For-You Service)
+
+**Producto:** Brand Citability Analysis  
+**Precio:** $1,500 - $2,500 USD  
+**Entregable:** Reporte HTML + sesión estratégica 60min
+
+**Workflow:**
+1. Cliente contrata análisis
+2. Ejecutas en herramienta (password-protected)
+3. Exportas → 📄 Reporte HTML
+4. Entregas vía email + sesión explicativa
+5. Upsell: MOC, WebMCP, Retainer mensual
+
+### White-Label para Agencias (Futuro)
+
+**Modelo:** $5K setup + $8K/año OR 30% revenue share  
+**Incluye:** Branding personalizado, soporte técnico, actualizaciones
 
 ---
 
 ## 🤝 Contribuir
 
-Este es un proyecto de código abierto. Pull requests bienvenidos para:
-
+Pull requests bienvenidos para:
 - 🐛 Corrección de bugs
 - ✨ Nuevas funcionalidades
 - 📝 Mejoras de documentación
 - 🎨 Mejoras de UI/UX
 
-**NO se aceptan PRs que**:
+**NO se aceptan PRs que:**
 - Eliminen marca de agua "jairoamaya.co"
 - Cambien autoría del proyecto
 - Violen términos de uso de APIs externas
@@ -304,29 +374,54 @@ Bogotá, Colombia
 
 ### Agencias de Marketing
 - Benchmark competitivo de marcas en IA
-- Reporting mensual de citabilidad
+- Reporting mensual de citabilidad para clientes
 - Identificar gaps de contenido evergreen
+- **NUEVO:** Quick Wins report (territorio baldío)
 
 ### Brands & CMOs
 - Medir ROI de estrategia AEO/GEO
-- Detectar pérdida de autoridad semántica
-- Priorizar inversión en territorios
+- Detectar pérdida de autoridad semántica vs competencia
+- Priorizar inversión en territorios de alto valor comercial
+- **NUEVO:** Dashboard de amenaza competitiva
 
 ### Consultores SEO
 - Auditoría de visibilidad en IA para clientes
-- Producto premium: "Reporte de Citabilidad IA"
+- Producto premium: "Brand Citability Analysis" ($1,500-2,500)
 - Upsell desde auditoría SEO tradicional
+- **NUEVO:** Reportes HTML profesionales para clientes
 
 ---
 
 ## 🚧 Roadmap
 
+**v4.3 (Q2 2025)**
 - [ ] Integración con DeepSeek y Grok
+- [ ] Modo "Stealth" para análisis de competencia anónimo
 - [ ] Export a Google Sheets
+
+**v5.0 (Q3 2025)**
 - [ ] API REST para integración externa
 - [ ] Dashboard analytics histórico
 - [ ] Alertas de cambio de ranking
-- [ ] Benchmarks por industria (datos agregados)
+- [ ] Benchmarks por industria (datos agregados anónimos)
+
+---
+
+## 📈 Changelog
+
+### v4.2 (Enero 2025)
+- ✅ Sistema de enriquecimiento comercial (metadata + scores)
+- ✅ Performance metrics por marca (share of voice, gaps, eficiencias)
+- ✅ Commercial insights (quick wins, amenazas competitivas)
+- ✅ Generación de reportes HTML profesionales
+- ✅ Export inline en resultados (mejor UX)
+- ❌ Eliminado export PDF (reemplazado por HTML)
+
+### v2.1 (Diciembre 2024)
+- Multi-modelo (Gemini, Claude, ChatGPT, Perplexity)
+- Citation Graph semántico
+- Historial en Supabase
+- Export JSON/CSV
 
 ---
 
