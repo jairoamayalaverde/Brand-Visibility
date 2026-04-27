@@ -1,3 +1,44 @@
 {
-  "version": 2
+  "name": "brand-citability",
+  "version": "4.2.0",
+  "description": "Multi-model AI brand citation measurement tool with commercial enrichment",
+  "main": "brand-citability-production.html",
+  "scripts": {
+    "dev": "python3 -m http.server 8000",
+    "deploy": "vercel --prod"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jairoamaya/brand-citability.git"
+  },
+  "keywords": [
+    "brand-citability",
+    "ai-seo",
+    "aeo",
+    "geo",
+    "llm-optimization",
+    "gemini",
+    "claude",
+    "chatgpt",
+    "perplexity",
+    "semantic-authority",
+    "citation-graph",
+    "marketing-analytics",
+    "brand-visibility"
+  ],
+  "author": {
+    "name": "Jairo Amaya",
+    "email": "contacto@jairoamaya.co",
+    "url": "https://jairoamaya.co"
+  },
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/jairoamaya/brand-citability/issues"
+  },
+  "homepage": "https://github.com/jairoamaya/brand-citability#readme",
+  "engines": {
+    "node": ">=14.0.0"
+  },
+  "dependencies": {},
+  "devDependencies": {}
 }
