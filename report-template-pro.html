@@ -1,0 +1,898 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Brand Citability Report — Análisis de Citabilidad IA</title>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,wght@0,400;0,600;0,700;1,400;1,600&family=JetBrains+Mono:wght@400;500;600&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+/* ══════════════════════════════════════════════════════════════════════════════
+   BRAND CITABILITY REPORT TEMPLATE v1.0
+   Diseño: Jairo Amaya Consulting
+   Estética: Editorial refinado + Data visualization
+   ══════════════════════════════════════════════════════════════════════════════ */
+
+:root {
+  /* Colors - Professional dark editorial */
+  --bg-primary: #0a0a0f;
+  --bg-secondary: #14141c;
+  --bg-tertiary: #1c1c28;
+  --surface: #24243a;
+  --surface-hover: #2d2d44;
+  --border: #34344f;
+  --border-subtle: #26263a;
+  
+  /* Accent colors */
+  --accent-gold: #f4b942;
+  --accent-gold-dim: #c99a35;
+  --accent-blue: #4a9eff;
+  --accent-purple: #9d5cff;
+  --accent-green: #3dd68c;
+  --accent-red: #ff5c5c;
+  
+  /* Text */
+  --text-primary: #f5f5f7;
+  --text-secondary: #c4c4cc;
+  --text-tertiary: #8a8a95;
+  --text-muted: #62626d;
+  
+  /* Typography */
+  --font-display: 'Newsreader', Georgia, serif;
+  --font-sans: 'DM Sans', -apple-system, sans-serif;
+  --font-mono: 'JetBrains Mono', 'Courier New', monospace;
+  
+  /* Spacing & Layout */
+  --max-width: 980px;
+  --gutter: 40px;
+  --section-gap: 120px;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: var(--font-sans);
+  font-size: 16px;
+  line-height: 1.7;
+  color: var(--text-secondary);
+  background: var(--bg-primary);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* ── LAYOUT ─────────────────────────────────────────────────────────────────── */
+
+.report-container {
+  max-width: var(--max-width);
+  margin: 0 auto;
+  padding: 80px var(--gutter) 120px;
+}
+
+.report-section {
+  margin-bottom: var(--section-gap);
+  animation: fadeInUp 0.8s ease-out backwards;
+}
+
+.report-section:nth-child(2) { animation-delay: 0.1s; }
+.report-section:nth-child(3) { animation-delay: 0.2s; }
+.report-section:nth-child(4) { animation-delay: 0.3s; }
+.report-section:nth-child(5) { animation-delay: 0.4s; }
+.report-section:nth-child(6) { animation-delay: 0.5s; }
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ── TYPOGRAPHY ─────────────────────────────────────────────────────────────── */
+
+.report-title {
+  font-family: var(--font-display);
+  font-size: 56px;
+  font-weight: 700;
+  line-height: 1.1;
+  color: var(--text-primary);
+  letter-spacing: -0.02em;
+  margin-bottom: 24px;
+}
+
+.report-subtitle {
+  font-family: var(--font-sans);
+  font-size: 20px;
+  font-weight: 400;
+  color: var(--text-tertiary);
+  margin-bottom: 48px;
+}
+
+.section-title {
+  font-family: var(--font-display);
+  font-size: 38px;
+  font-weight: 600;
+  line-height: 1.2;
+  color: var(--text-primary);
+  letter-spacing: -0.01em;
+  margin-bottom: 16px;
+}
+
+.section-subtitle {
+  font-size: 18px;
+  color: var(--text-tertiary);
+  margin-bottom: 40px;
+  font-weight: 400;
+}
+
+.section-label {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--accent-gold);
+  margin-bottom: 12px;
+  font-weight: 500;
+}
+
+/* ── HEADER ─────────────────────────────────────────────────────────────────── */
+
+.report-header {
+  margin-bottom: 80px;
+  border-bottom: 1px solid var(--border-subtle);
+  padding-bottom: 60px;
+}
+
+.report-meta {
+  display: flex;
+  gap: 32px;
+  margin-bottom: 48px;
+  flex-wrap: wrap;
+}
+
+.meta-item {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.meta-label {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--text-muted);
+}
+
+.meta-value {
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--text-secondary);
+}
+
+/* ── EXECUTIVE SUMMARY ──────────────────────────────────────────────────────── */
+
+.executive-summary {
+  background: linear-gradient(135deg, var(--bg-secondary) 0%, var(--bg-tertiary) 100%);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 48px;
+  position: relative;
+  overflow: hidden;
+}
+
+.executive-summary::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 4px;
+  height: 100%;
+  background: linear-gradient(180deg, var(--accent-gold) 0%, var(--accent-gold-dim) 100%);
+}
+
+.kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 32px;
+  margin-top: 32px;
+}
+
+.kpi-card {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.kpi-value {
+  font-family: var(--font-display);
+  font-size: 48px;
+  font-weight: 700;
+  line-height: 1;
+  color: var(--text-primary);
+  letter-spacing: -0.02em;
+}
+
+.kpi-label {
+  font-size: 14px;
+  color: var(--text-tertiary);
+  font-weight: 400;
+}
+
+.kpi-change {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 500;
+  margin-top: 4px;
+}
+
+.kpi-change.positive {
+  color: var(--accent-green);
+}
+
+.kpi-change.negative {
+  color: var(--accent-red);
+}
+
+/* ── STAT CARDS ─────────────────────────────────────────────────────────────── */
+
+.stat-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 24px;
+  margin-top: 32px;
+}
+
+.stat-card {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-subtle);
+  border-radius: 12px;
+  padding: 28px;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+}
+
+.stat-card:hover {
+  background: var(--bg-tertiary);
+  border-color: var(--border);
+  transform: translateY(-2px);
+}
+
+.stat-card-label {
+  font-size: 13px;
+  color: var(--text-tertiary);
+  margin-bottom: 12px;
+  font-weight: 500;
+}
+
+.stat-card-value {
+  font-family: var(--font-display);
+  font-size: 36px;
+  font-weight: 600;
+  color: var(--text-primary);
+  line-height: 1;
+  margin-bottom: 8px;
+}
+
+.stat-card-desc {
+  font-size: 13px;
+  color: var(--text-muted);
+  line-height: 1.5;
+}
+
+.stat-card.accent-gold {
+  border-left: 3px solid var(--accent-gold);
+}
+
+.stat-card.accent-blue {
+  border-left: 3px solid var(--accent-blue);
+}
+
+.stat-card.accent-purple {
+  border-left: 3px solid var(--accent-purple);
+}
+
+.stat-card.accent-green {
+  border-left: 3px solid var(--accent-green);
+}
+
+/* ── RANKING TABLE ──────────────────────────────────────────────────────────── */
+
+.ranking-table {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-subtle);
+  border-radius: 12px;
+  overflow: hidden;
+  margin-top: 32px;
+}
+
+.ranking-header {
+  display: grid;
+  grid-template-columns: 50px 1fr 120px 120px 120px;
+  gap: 16px;
+  padding: 20px 28px;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--text-muted);
+  font-weight: 500;
+}
+
+.ranking-row {
+  display: grid;
+  grid-template-columns: 50px 1fr 120px 120px 120px;
+  gap: 16px;
+  padding: 24px 28px;
+  border-bottom: 1px solid var(--border-subtle);
+  transition: background 0.2s;
+  align-items: center;
+}
+
+.ranking-row:hover {
+  background: var(--surface);
+}
+
+.ranking-row:last-child {
+  border-bottom: none;
+}
+
+.ranking-position {
+  font-family: var(--font-display);
+  font-size: 24px;
+  font-weight: 600;
+  color: var(--text-tertiary);
+}
+
+.ranking-position.leader {
+  color: var(--accent-gold);
+}
+
+.ranking-brand {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.ranking-metric {
+  font-family: var(--font-mono);
+  font-size: 14px;
+  color: var(--text-secondary);
+}
+
+.ranking-bar {
+  width: 100%;
+  height: 6px;
+  background: var(--surface);
+  border-radius: 3px;
+  margin-top: 8px;
+  overflow: hidden;
+}
+
+.ranking-bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--accent-gold) 0%, var(--accent-gold-dim) 100%);
+  border-radius: 3px;
+  transition: width 1s cubic-bezier(0.4, 0, 0.2, 1) 0.3s;
+}
+
+/* ── QUICK WINS LIST ────────────────────────────────────────────────────────── */
+
+.quickwin-list {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  margin-top: 32px;
+}
+
+.quickwin-item {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-subtle);
+  border-radius: 12px;
+  padding: 28px;
+  position: relative;
+  transition: all 0.3s;
+}
+
+.quickwin-item:hover {
+  border-color: var(--border);
+  transform: translateX(4px);
+}
+
+.quickwin-header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 12px;
+}
+
+.quickwin-score {
+  font-family: var(--font-display);
+  font-size: 32px;
+  font-weight: 700;
+  color: var(--accent-gold);
+  min-width: 60px;
+}
+
+.quickwin-id {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--text-muted);
+  background: var(--surface);
+  padding: 6px 12px;
+  border-radius: 6px;
+}
+
+.quickwin-question {
+  font-size: 16px;
+  font-weight: 500;
+  color: var(--text-primary);
+  margin-bottom: 12px;
+  line-height: 1.5;
+}
+
+.quickwin-meta {
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+.quickwin-tag {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--text-tertiary);
+  background: var(--surface);
+  padding: 4px 10px;
+  border-radius: 4px;
+}
+
+.quickwin-tag.critical {
+  background: rgba(255, 92, 92, 0.15);
+  color: var(--accent-red);
+  border: 1px solid rgba(255, 92, 92, 0.3);
+}
+
+.quickwin-tag.high {
+  background: rgba(244, 185, 66, 0.15);
+  color: var(--accent-gold);
+  border: 1px solid rgba(244, 185, 66, 0.3);
+}
+
+/* ── INSIGHT BLOCKS ─────────────────────────────────────────────────────────── */
+
+.insight-block {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-subtle);
+  border-radius: 16px;
+  padding: 40px;
+  margin-top: 32px;
+}
+
+.insight-title {
+  font-family: var(--font-display);
+  font-size: 24px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 16px;
+}
+
+.insight-content {
+  font-size: 16px;
+  line-height: 1.7;
+  color: var(--text-secondary);
+}
+
+.insight-content strong {
+  color: var(--text-primary);
+  font-weight: 600;
+}
+
+.insight-highlight {
+  background: rgba(244, 185, 66, 0.1);
+  border-left: 3px solid var(--accent-gold);
+  padding: 20px 24px;
+  margin: 24px 0;
+  border-radius: 8px;
+}
+
+.insight-highlight p {
+  font-size: 15px;
+  line-height: 1.6;
+  color: var(--text-secondary);
+}
+
+/* ── FOOTER / CTA ───────────────────────────────────────────────────────────── */
+
+.report-footer {
+  margin-top: 120px;
+  padding-top: 60px;
+  border-top: 1px solid var(--border-subtle);
+  text-align: center;
+}
+
+.footer-brand {
+  font-family: var(--font-display);
+  font-size: 18px;
+  font-weight: 600;
+  font-style: italic;
+  color: var(--text-primary);
+  margin-bottom: 12px;
+}
+
+.footer-tagline {
+  font-size: 14px;
+  color: var(--text-tertiary);
+  margin-bottom: 32px;
+}
+
+.footer-link {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  color: var(--accent-gold);
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+.footer-link:hover {
+  color: var(--accent-gold-dim);
+  text-decoration: underline;
+}
+
+/* ── RESPONSIVE ─────────────────────────────────────────────────────────────── */
+
+@media (max-width: 768px) {
+  :root {
+    --gutter: 24px;
+    --section-gap: 80px;
+  }
+  
+  .report-container {
+    padding: 48px var(--gutter) 80px;
+  }
+  
+  .report-title {
+    font-size: 40px;
+  }
+  
+  .section-title {
+    font-size: 32px;
+  }
+  
+  .kpi-grid {
+    grid-template-columns: 1fr;
+    gap: 24px;
+  }
+  
+  .stat-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .ranking-header,
+  .ranking-row {
+    grid-template-columns: 40px 1fr 80px;
+    gap: 12px;
+    padding: 16px 20px;
+  }
+  
+  .ranking-header :nth-child(4),
+  .ranking-header :nth-child(5),
+  .ranking-row :nth-child(4),
+  .ranking-row :nth-child(5) {
+    display: none;
+  }
+  
+  .executive-summary {
+    padding: 32px 24px;
+  }
+}
+
+@media print {
+  .report-container {
+    max-width: 100%;
+    padding: 20mm;
+  }
+  
+  .report-section {
+    page-break-inside: avoid;
+  }
+}
+</style>
+</head>
+<body>
+
+<div class="report-container">
+  
+  <!-- ══════════════════════════════════════════════════════════════════════ -->
+  <!-- HEADER -->
+  <!-- ══════════════════════════════════════════════════════════════════════ -->
+  
+  <header class="report-header">
+    <div class="report-meta">
+      <div class="meta-item">
+        <div class="meta-label">Industria</div>
+        <div class="meta-value" id="meta-industry">—</div>
+      </div>
+      <div class="meta-item">
+        <div class="meta-label">País</div>
+        <div class="meta-value" id="meta-country">—</div>
+      </div>
+      <div class="meta-item">
+        <div class="meta-label">Fecha</div>
+        <div class="meta-value" id="meta-date">—</div>
+      </div>
+      <div class="meta-item">
+        <div class="meta-label">Marcas analizadas</div>
+        <div class="meta-value" id="meta-brands">—</div>
+      </div>
+    </div>
+    
+    <h1 class="report-title" id="report-title">Brand Citability Report</h1>
+    <p class="report-subtitle" id="report-subtitle">Análisis de visibilidad en LLMs — Gemini, Claude, ChatGPT</p>
+  </header>
+  
+  <!-- ══════════════════════════════════════════════════════════════════════ -->
+  <!-- EXECUTIVE SUMMARY -->
+  <!-- ══════════════════════════════════════════════════════════════════════ -->
+  
+  <section class="report-section">
+    <div class="section-label">Executive Summary</div>
+    <h2 class="section-title">Panorama General</h2>
+    
+    <div class="executive-summary">
+      <div class="kpi-grid" id="kpi-grid">
+        <!-- KPIs se renderizarán aquí -->
+      </div>
+    </div>
+  </section>
+  
+  <!-- ══════════════════════════════════════════════════════════════════════ -->
+  <!-- SECTION 1: PERFORMANCE -->
+  <!-- ══════════════════════════════════════════════════════════════════════ -->
+  
+  <section class="report-section" id="section-performance">
+    <div class="section-label">Insight #1</div>
+    <h2 class="section-title">Share of Voice en IA</h2>
+    <p class="section-subtitle">¿Quién domina las menciones cuando los usuarios preguntan sobre tu industria?</p>
+    
+    <div class="ranking-table" id="ranking-table">
+      <!-- Ranking se renderizará aquí -->
+    </div>
+  </section>
+  
+  <!-- ══════════════════════════════════════════════════════════════════════ -->
+  <!-- SECTION 2: QUICK WINS -->
+  <!-- ══════════════════════════════════════════════════════════════════════ -->
+  
+  <section class="report-section" id="section-quickwins">
+    <div class="section-label">Insight #2</div>
+    <h2 class="section-title">Quick Wins — Territorio Disponible</h2>
+    <p class="section-subtitle">Preguntas de alto valor donde ninguna marca está siendo citada</p>
+    
+    <div class="quickwin-list" id="quickwin-list">
+      <!-- Quick wins se renderizarán aquí -->
+    </div>
+  </section>
+  
+  <!-- ══════════════════════════════════════════════════════════════════════ -->
+  <!-- SECTION 3: COMPETITIVE THREAT -->
+  <!-- ══════════════════════════════════════════════════════════════════════ -->
+  
+  <section class="report-section" id="section-threat">
+    <div class="section-label">Insight #3</div>
+    <h2 class="section-title">Amenaza Competitiva</h2>
+    <p class="section-subtitle">Quién te está superando y en qué magnitud</p>
+    
+    <div class="stat-grid" id="threat-grid">
+      <!-- Stats de amenaza se renderizarán aquí -->
+    </div>
+    
+    <div class="insight-block" id="threat-insight">
+      <!-- Insight narrativo aquí -->
+    </div>
+  </section>
+  
+  <!-- ══════════════════════════════════════════════════════════════════════ -->
+  <!-- FOOTER -->
+  <!-- ══════════════════════════════════════════════════════════════════════ -->
+  
+  <footer class="report-footer">
+    <div class="footer-brand">Jairo Amaya Consulting</div>
+    <div class="footer-tagline">Soberanía Semántica · WebMCP · Agentive Visibility</div>
+    <a href="https://jairoamaya.co" class="footer-link">jairoamaya.co</a>
+  </footer>
+
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════════════════
+     JAVASCRIPT - DATA RENDERING
+     ══════════════════════════════════════════════════════════════════════════ -->
+
+<script>
+// Este script renderiza el reporte desde un objeto JSON
+// Puede ser cargado desde archivo o window.REPORT_DATA
+
+function renderReport(data) {
+  if (!data || !data.config || !data.results) {
+    console.error('Invalid report data structure');
+    return;
+  }
+  
+  const config = data.config;
+  const results = data.results.gemini || Object.values(data.results)[0];
+  const commercial = results.commercial_insights || {};
+  
+  // ── METADATA ──
+  document.getElementById('meta-industry').textContent = config.industria || '—';
+  document.getElementById('meta-country').textContent = config.pais || '—';
+  document.getElementById('meta-date').textContent = new Date(data.fecha || Date.now()).toLocaleDateString('es-CO', { 
+    year: 'numeric', month: 'long', day: 'numeric' 
+  });
+  document.getElementById('meta-brands').textContent = (config.marcas || []).length;
+  
+  // ── KPIs ──
+  const kpiGrid = document.getElementById('kpi-grid');
+  const kpis = [
+    {
+      value: results.totalQ || 0,
+      label: 'Preguntas analizadas',
+      change: null
+    },
+    {
+      value: commercial.total_preguntas_sin_marca || 0,
+      label: 'Sin marca citada',
+      change: `${commercial.pct_preguntas_sin_marca || 0}% del total`
+    },
+    {
+      value: commercial.quick_wins?.length || 0,
+      label: 'Quick Wins identificados',
+      change: 'Alto potencial'
+    },
+    {
+      value: results.ranking?.[0]?.performance?.share_of_voice_pct || 0,
+      label: 'Share of Voice líder',
+      change: results.ranking?.[0]?.marca || '—'
+    }
+  ];
+  
+  kpiGrid.innerHTML = kpis.map(kpi => `
+    <div class="kpi-card">
+      <div class="kpi-value">${kpi.value}${typeof kpi.value === 'number' && kpi.value > 20 ? '' : kpi.label.includes('Share') ? '%' : ''}</div>
+      <div class="kpi-label">${kpi.label}</div>
+      ${kpi.change ? `<div class="kpi-change">${kpi.change}</div>` : ''}
+    </div>
+  `).join('');
+  
+  // ── RANKING TABLE ──
+  const rankingTable = document.getElementById('ranking-table');
+  const ranking = results.ranking || [];
+  
+  rankingTable.innerHTML = `
+    <div class="ranking-header">
+      <div>#</div>
+      <div>Marca</div>
+      <div>Share of Voice</div>
+      <div>Gap vs Líder</div>
+      <div>Eficiencia</div>
+    </div>
+    ${ranking.slice(0, 5).map((r, i) => {
+      const perf = r.performance || {};
+      const isLeader = i === 0;
+      return `
+        <div class="ranking-row">
+          <div class="ranking-position ${isLeader ? 'leader' : ''}">${i + 1}</div>
+          <div>
+            <div class="ranking-brand">${r.marca}</div>
+            <div class="ranking-bar">
+              <div class="ranking-bar-fill" style="width: ${perf.share_of_voice_pct || 0}%"></div>
+            </div>
+          </div>
+          <div class="ranking-metric">${perf.share_of_voice_pct || 0}%</div>
+          <div class="ranking-metric">${isLeader ? '—' : perf.gap_vs_lider || 0}</div>
+          <div class="ranking-metric">${perf.eficiencia_total || 0}%</div>
+        </div>
+      `;
+    }).join('')}
+  `;
+  
+  // ── QUICK WINS ──
+  const quickwinList = document.getElementById('quickwin-list');
+  const quickwins = commercial.quick_wins || [];
+  
+  quickwinList.innerHTML = quickwins.slice(0, 5).map(qw => `
+    <div class="quickwin-item">
+      <div class="quickwin-header">
+        <div class="quickwin-score">${qw.score || 0}</div>
+        <div class="quickwin-id">${qw.pregunta_id}</div>
+      </div>
+      <div class="quickwin-question">${qw.pregunta}</div>
+      <div class="quickwin-meta">
+        <span class="quickwin-tag ${qw.valor_negocio}">${qw.valor_negocio || 'medio'}</span>
+        <span class="quickwin-tag">Vol: ${qw.volumen || 'medio'}</span>
+        <span class="quickwin-tag">${qw.formato || 'articulo'}</span>
+      </div>
+    </div>
+  `).join('');
+  
+  // ── THREAT STATS ──
+  const threatGrid = document.getElementById('threat-grid');
+  const threat = commercial.amenaza_competitiva || {};
+  const leader = ranking[0] || {};
+  const leaderPerf = leader.performance || {};
+  
+  threatGrid.innerHTML = `
+    <div class="stat-card accent-gold">
+      <div class="stat-card-label">Marca dominante</div>
+      <div class="stat-card-value">${threat.marca || '—'}</div>
+      <div class="stat-card-desc">${threat.dominancia_pct || 0}% de dominancia en primeras menciones</div>
+    </div>
+    <div class="stat-card accent-blue">
+      <div class="stat-card-label">Menciones perdidas (líder)</div>
+      <div class="stat-card-value">${leaderPerf.menciones_perdidas || 0}</div>
+      <div class="stat-card-desc">${leaderPerf.pct_perdido || 0}% del total de preguntas</div>
+    </div>
+    <div class="stat-card accent-purple">
+      <div class="stat-card-label">Volumen perdido estimado</div>
+      <div class="stat-card-value">${leaderPerf.volumen_perdido_estimado || 'N/A'}</div>
+      <div class="stat-card-desc">Clasificación según % de ausencia</div>
+    </div>
+  `;
+  
+  // ── THREAT INSIGHT ──
+  const threatInsight = document.getElementById('threat-insight');
+  threatInsight.innerHTML = `
+    <div class="insight-title">Interpretación Comercial</div>
+    <div class="insight-content">
+      <p>
+        <strong>${threat.marca || 'El líder'}</strong> domina <strong>${threat.dominancia_pct || 0}%</strong> 
+        de las respuestas donde hay marca citada. Cuando los LLMs recomiendan un banco, 
+        ${threat.dominancia_pct >= 50 ? 'más de la mitad' : 'una parte significativa'} 
+        de las veces es ${threat.marca || 'esta marca'}.
+      </p>
+      <div class="insight-highlight">
+        <p>
+          <strong>Oportunidad:</strong> ${commercial.total_preguntas_sin_marca || 0} preguntas 
+          (${commercial.pct_preguntas_sin_marca || 0}% del total) no mencionan a NINGUNA marca. 
+          Este es territorio disponible para colonizar sin competencia directa.
+        </p>
+      </div>
+    </div>
+  `;
+}
+
+// ── AUTO-LOAD DATA ──
+// Si window.REPORT_DATA existe, renderizar automáticamente
+if (window.REPORT_DATA) {
+  renderReport(window.REPORT_DATA);
+}
+
+// ── LOAD FROM FILE ──
+// Función helper para cargar JSON externo
+async function loadReportFromFile(url) {
+  try {
+    const response = await fetch(url);
+    const data = await response.json();
+    renderReport(data);
+  } catch (err) {
+    console.error('Error loading report:', err);
+  }
+}
+
+// Exponer función global para uso externo
+window.renderReport = renderReport;
+window.loadReportFromFile = loadReportFromFile;
+
+console.log('📊 Brand Citability Report Template v1.0');
+console.log('Usage: window.renderReport(jsonData) or window.loadReportFromFile(url)');
+</script>
+
+</body>
+</html>
