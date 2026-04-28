@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Brand Visibility — Mide citaciones de marca en IA</title>
+<title>Brand Citability — Mide citaciones de marca en IA</title>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,700;0,900;1,900&family=DM+Mono:wght@300;400;500&family=DM+Sans:wght@300;400;500;700&display=swap" rel="stylesheet">
 <style>
 /* ── ALL STYLES SCOPED TO #cia-agent — no global leaks ── */
@@ -773,7 +773,6 @@
             <label>Exportar como</label>
             <select id="cia-expfmt">
               <option value="json">JSON completo</option>
-              <option value="report">📄 Reporte HTML</option>
             </select>
           </div>
         </div>
@@ -847,8 +846,7 @@
           </div>
           <div style="display:flex;gap:8px;flex-shrink:0;align-items:center;">
           <select id="cia-expfmt-inline" style="background:var(--surface);border:1px solid var(--border);color:var(--text);font-family:'DM Sans',sans-serif;font-size:12px;padding:8px 12px;border-radius:6px;outline:none;cursor:pointer;">
-            <option value="json">JSON</option>
-            <option value="report">📄 Reporte HTML</option>
+            <option value="json">JSON completo</option>
           </select>
           <button class="cia-btn-exp" onclick="ciaExportInline()">📥 Exportar</button>
         </div>
@@ -2096,13 +2094,18 @@ function ciaCross(marcas,mods){
 
 // ── EXPORT & PDF (CONTINUARÁ EN SIGUIENTE MENSAJE) ───────────────────────────
 // ── GENERATE HTML REPORT ──────────────────────────────────────────────────────
-function ciaGenerateReport() {
-  if (!S.results || Object.keys(S.results).length === 0) {
-    alert('No hay resultados para exportar. Ejecuta un análisis primero.');
-    return;
-  }
-  
-  const reportData = {
+
+// ── EXPORT INLINE (desde botón en resultados) ────────────────────────────────
+function ciaExportInline() {
+  // Sincronizar con el selector de Config
+  const fmt = el('cia-expfmt-inline').value;
+  el('cia-expfmt').value = fmt;
+  ciaExport();
+}
+
+function ciaExport() {
+  // Solo exportar JSON - el entregable visual se hace manualmente
+  const blob = new Blob([JSON.stringify({
     config: {
       industria: el('cia-industria').value === 'custom' ? el('cia-ind-custom').value : el('cia-industria').value,
       pais: el('cia-pais').value,
@@ -2115,112 +2118,13 @@ function ciaGenerateReport() {
     results: S.results,
     graph: S.graphData,
     fecha: new Date().toISOString()
-  };
-  
-  ciaLog('→ Generando reporte HTML...', 'step');
-  
-  // Cargar template desde servidor (ruta relativa se adapta a Vercel o subdominio)
-  const templateURL = window.location.origin + '/report-template-pro.html';
-  console.log('Cargando template desde:', templateURL);
-  
-  fetch(templateURL)
-    .then(response => {
-      console.log('Template fetch status:', response.status);
-      if (!response.ok) {
-        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-      }
-      return response.text();
-    })
-    .then(templateHTML => {
-      console.log('Template cargado, tamaño:', templateHTML.length, 'bytes');
-      
-      // Verificar que el template no esté vacío
-      if (!templateHTML || templateHTML.length < 100) {
-        throw new Error('Template vacío o corrupto');
-      }
-      
-      // Inyectar datos directamente como objeto JavaScript (sin stringify)
-      // Esto evita todos los problemas de escapado
-      const dataScript = '\n<scr' + 'ipt>\n' +
-        'window.REPORT_DATA = ' + JSON.stringify(reportData) + ';\n' +
-        'console.log("✓ REPORT_DATA inyectado:", window.REPORT_DATA ? Object.keys(window.REPORT_DATA) : "null");\n' +
-        '</scr' + 'ipt>\n';
-      
-      console.log('Preview del script (primeros 200 chars):', dataScript.substring(0, 200));
-      
-      // Inyectar ANTES del cierre de </body>
-      const bodyCloseIndex = templateHTML.lastIndexOf('</body>');
-      if (bodyCloseIndex === -1) {
-        throw new Error('Template HTML no tiene etiqueta </body>');
-      }
-      
-      const htmlWithData = templateHTML.slice(0, bodyCloseIndex) + dataScript + '\n' + templateHTML.slice(bodyCloseIndex);
-      
-      console.log('Datos inyectados, generando archivo...');
-      console.log('Tamaño HTML final:', htmlWithData.length, 'bytes');
-      console.log('Buscando REPORT_DATA en HTML final:', htmlWithData.includes('window.REPORT_DATA') ? 'SÍ ENCONTRADO ✓' : 'NO ENCONTRADO ✗');
-      
-      // Debug: mostrar fragmento del script inyectado
-      const scriptStart = htmlWithData.indexOf('window.REPORT_DATA');
-      if (scriptStart > -1) {
-        console.log('Script inyectado (preview):', htmlWithData.substring(scriptStart, scriptStart + 100) + '...');
-      } else {
-        console.error('⚠️ ADVERTENCIA: window.REPORT_DATA NO está en el HTML final');
-      }
-      
-      // Descargar HTML standalone
-      const blob = new Blob([htmlWithData], { type: 'text/html; charset=utf-8' });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `report-visibility-${Date.now()}.html`;
-      a.click();
-      URL.revokeObjectURL(url);
-      
-      ciaLog('✓ Reporte HTML generado: report-visibility-' + Date.now() + '.html','ok');
-    })
-    .catch(err => {
-      console.error('Error loading template:', err);
-      ciaLog('✕ Error cargando template: ' + err.message, 'error');
-      alert('Error al cargar el template:\n\n' + err.message + '\n\nAsegúrate de que report-template-pro.html esté en: ' + templateURL);
-
-    });
-}
-
-// ── EXPORT INLINE (desde botón en resultados) ────────────────────────────────
-function ciaExportInline() {
-  // Sincronizar con el selector de Config
-  const fmt = el('cia-expfmt-inline').value;
-  el('cia-expfmt').value = fmt;
-  ciaExport();
-}
-
-function ciaExport() {
-  const fmt = el('cia-expfmt').value;
-  if (fmt === 'json') {
-    const blob = new Blob([JSON.stringify({
-      config: {
-        industria: el('cia-industria').value === 'custom' ? el('cia-ind-custom').value : el('cia-industria').value,
-        pais: el('cia-pais').value,
-        marcas: el('cia-marcas').value.trim().split('\n').map(m => m.trim()).filter(Boolean),
-        preguntas: el('cia-nq').value,
-        version: '4.2.0-enriched',
-        enrichment_enabled: true
-      },
-      preguntas: S.preguntas,
-      results: S.results,
-      graph: S.graphData,
-      fecha: new Date().toISOString()
-    }, null, 2)], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = 'brand-visibility-' + Date.now() + '.json';
-    a.click();
-    URL.revokeObjectURL(url);
-  } else if (fmt === 'report') {
-    ciaGenerateReport();
-  }
+  }, null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'brand-visibility-' + Date.now() + '.json';
+  a.click();
+  URL.revokeObjectURL(url);
 }
 
 // Due to file length, PDF function is being truncated. The complete working version 
