@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Brand Visibility — Mide citaciones de marca en IA</title>
+<title>Brand Citability — Mide citaciones de marca en IA</title>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,700;0,900;1,900&family=DM+Mono:wght@300;400;500&family=DM+Sans:wght@300;400;500;700&display=swap" rel="stylesheet">
 <style>
 /* ── ALL STYLES SCOPED TO #cia-agent — no global leaks ── */
@@ -773,7 +773,6 @@
             <label>Exportar como</label>
             <select id="cia-expfmt">
               <option value="json">JSON completo</option>
-              <option value="csv">CSV ranking</option>
               <option value="report">📄 Reporte HTML</option>
             </select>
           </div>
@@ -849,7 +848,6 @@
           <div style="display:flex;gap:8px;flex-shrink:0;align-items:center;">
           <select id="cia-expfmt-inline" style="background:var(--surface);border:1px solid var(--border);color:var(--text);font-family:'DM Sans',sans-serif;font-size:12px;padding:8px 12px;border-radius:6px;outline:none;cursor:pointer;">
             <option value="json">JSON</option>
-            <option value="csv">CSV</option>
             <option value="report">📄 Reporte HTML</option>
           </select>
           <button class="cia-btn-exp" onclick="ciaExportInline()">📥 Exportar</button>
@@ -2141,21 +2139,14 @@ function ciaGenerateReport() {
         throw new Error('Template vacío o corrupto');
       }
       
-      // Codificar datos en base64 para evitar problemas de escapado
-      const jsonString = JSON.stringify(reportData, null, 2);
-      const base64Data = btoa(unescape(encodeURIComponent(jsonString)));
+      // Inyectar datos directamente como objeto JavaScript (sin stringify)
+      // Esto evita todos los problemas de escapado
+      const dataScript = '\n<scr' + 'ipt>\n' +
+        'window.REPORT_DATA = ' + JSON.stringify(reportData) + ';\n' +
+        'console.log("✓ REPORT_DATA inyectado:", window.REPORT_DATA ? Object.keys(window.REPORT_DATA) : "null");\n' +
+        '</scr' + 'ipt>\n';
       
-      const dataScript = '<scr' + 'ipt>\n' +
-        '// Decodificar datos desde base64\n' +
-        'try {\n' +
-        '  var base64 = "' + base64Data + '";\n' +
-        '  var jsonStr = decodeURIComponent(escape(atob(base64)));\n' +
-        '  window.REPORT_DATA = JSON.parse(jsonStr);\n' +
-        '  console.log("✓ REPORT_DATA cargado correctamente:", Object.keys(window.REPORT_DATA));\n' +
-        '} catch(e) {\n' +
-        '  console.error("Error decodificando REPORT_DATA:", e);\n' +
-        '}\n' +
-        '</scr' + 'ipt>';
+      console.log('Preview del script (primeros 200 chars):', dataScript.substring(0, 200));
       
       // Inyectar ANTES del cierre de </body>
       const bodyCloseIndex = templateHTML.lastIndexOf('</body>');
@@ -2216,36 +2207,19 @@ function ciaExport() {
         version: '4.2.0-enriched',
         enrichment_enabled: true
       },
-      preguntas: S.preguntas, // Ya incluyen metadata
-      results: S.results, // Ya incluyen ranking enriquecido y commercial_insights
+      preguntas: S.preguntas,
+      results: S.results,
       graph: S.graphData,
       fecha: new Date().toISOString()
     }, null, 2)], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = 'citabilidad-enriched-' + Date.now() + '.json';
+    a.download = 'brand-visibility-' + Date.now() + '.json';
     a.click();
     URL.revokeObjectURL(url);
   } else if (fmt === 'report') {
-    // GENERAR REPORTE HTML STANDALONE
     ciaGenerateReport();
-  } else {
-    let csv = 'Modelo,Marca,Menciones,Primera,% Aparición,% Liderazgo\n';
-    Object.entries(S.results).forEach(([mid, data]) => {
-      data.ranking.forEach(r => {
-        const pa = data.totalQ ? Math.round(r.menciones / data.totalQ * 100) : 0;
-        const pl = r.menciones ? Math.round((r.primera || 0) / r.menciones * 100) : 0;
-        csv += `${data.name},${r.marca},${r.menciones},${r.primera || 0},${pa},${pl}\n`;
-      });
-    });
-    const blob = new Blob([csv], { type: 'text/csv' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = 'citabilidad-ranking-' + Date.now() + '.csv';
-    a.click();
-    URL.revokeObjectURL(url);
   }
 }
 
