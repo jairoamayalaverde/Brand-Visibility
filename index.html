@@ -566,7 +566,7 @@
 
   <!-- ══ HEADER ══ -->
   <div class="cia-hdr">
-    <div class="cia-logo"><div class="cia-logo-dot"></div>Brand <span>Visibility</span></div>
+    <div class="cia-logo"><div class="cia-logo-dot"></div>Brand <span>Citability</span></div>
     <div class="cia-vtag">v4.2 · jairoamaya.co</div>
   </div>
 
@@ -2119,31 +2119,80 @@ function ciaGenerateReport() {
     fecha: new Date().toISOString()
   };
   
+  ciaLog('→ Generando reporte HTML...', 'step');
+  
   // Cargar template desde servidor (ruta relativa se adapta a Vercel o subdominio)
   const templateURL = window.location.origin + '/report-template-pro.html';
+  console.log('Cargando template desde:', templateURL);
+  
   fetch(templateURL)
-    .then(response => response.text())
+    .then(response => {
+      console.log('Template fetch status:', response.status);
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+      }
+      return response.text();
+    })
     .then(templateHTML => {
-      // Inyectar datos JSON en el template
-      const htmlWithData = templateHTML.replace(
-        '</body>',
-        '<scr' + 'ipt>\nwindow.REPORT_DATA = ' + JSON.stringify(reportData, null, 2) + ';\n</scr' + 'ipt>\n</body>'
-      );
+      console.log('Template cargado, tamaño:', templateHTML.length, 'bytes');
+      
+      // Verificar que el template no esté vacío
+      if (!templateHTML || templateHTML.length < 100) {
+        throw new Error('Template vacío o corrupto');
+      }
+      
+      // Codificar datos en base64 para evitar problemas de escapado
+      const jsonString = JSON.stringify(reportData, null, 2);
+      const base64Data = btoa(unescape(encodeURIComponent(jsonString)));
+      
+      const dataScript = '<scr' + 'ipt>\n' +
+        '// Decodificar datos desde base64\n' +
+        'try {\n' +
+        '  var base64 = "' + base64Data + '";\n' +
+        '  var jsonStr = decodeURIComponent(escape(atob(base64)));\n' +
+        '  window.REPORT_DATA = JSON.parse(jsonStr);\n' +
+        '  console.log("✓ REPORT_DATA cargado correctamente:", Object.keys(window.REPORT_DATA));\n' +
+        '} catch(e) {\n' +
+        '  console.error("Error decodificando REPORT_DATA:", e);\n' +
+        '}\n' +
+        '</scr' + 'ipt>';
+      
+      // Inyectar ANTES del cierre de </body>
+      const bodyCloseIndex = templateHTML.lastIndexOf('</body>');
+      if (bodyCloseIndex === -1) {
+        throw new Error('Template HTML no tiene etiqueta </body>');
+      }
+      
+      const htmlWithData = templateHTML.slice(0, bodyCloseIndex) + dataScript + '\n' + templateHTML.slice(bodyCloseIndex);
+      
+      console.log('Datos inyectados, generando archivo...');
+      console.log('Tamaño HTML final:', htmlWithData.length, 'bytes');
+      console.log('Buscando REPORT_DATA en HTML final:', htmlWithData.includes('window.REPORT_DATA') ? 'SÍ ENCONTRADO ✓' : 'NO ENCONTRADO ✗');
+      
+      // Debug: mostrar fragmento del script inyectado
+      const scriptStart = htmlWithData.indexOf('window.REPORT_DATA');
+      if (scriptStart > -1) {
+        console.log('Script inyectado (preview):', htmlWithData.substring(scriptStart, scriptStart + 100) + '...');
+      } else {
+        console.error('⚠️ ADVERTENCIA: window.REPORT_DATA NO está en el HTML final');
+      }
       
       // Descargar HTML standalone
-      const blob = new Blob([htmlWithData], { type: 'text/html' });
+      const blob = new Blob([htmlWithData], { type: 'text/html; charset=utf-8' });
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = `report-citability-${Date.now()}.html`;
+      a.download = `report-visibility-${Date.now()}.html`;
       a.click();
       URL.revokeObjectURL(url);
       
-      ciaLog('✓ Reporte HTML generado','ok');
+      ciaLog('✓ Reporte HTML generado: report-visibility-' + Date.now() + '.html','ok');
     })
     .catch(err => {
       console.error('Error loading template:', err);
-      alert('Error al cargar el template. Asegúrate de tener report-template-pro.html en tu servidor.');
+      ciaLog('✕ Error cargando template: ' + err.message, 'error');
+      alert('Error al cargar el template:\n\n' + err.message + '\n\nAsegúrate de que report-template-pro.html esté en: ' + templateURL);
+
     });
 }
 
