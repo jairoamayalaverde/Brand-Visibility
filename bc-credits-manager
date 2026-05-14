@@ -10,7 +10,7 @@
 // ── CONFIGURACIÓN ─────────────────────────────────────────────
 var BC_CONFIG = {
     SUPABASE_URL:  'https://vrhztgfgbjirmpbbdcks.supabase.co',
-    SUPABASE_KEY:  'TU_ANON_KEY_AQUI',
+    SUPABASE_KEY:  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZyaHp0Z2ZnYmppcm1wYmJkY2tzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzA1ODMxODUsImV4cCI6MjA4NjE1OTE4NX0.wkkxiZcLaADcGBLFvnAECHKLD7uLTinlVnvN4VjYElU',
     EDGE_FN:       'https://vrhztgfgbjirmpbbdcks.supabase.co/functions/v1/bc-credits-manager',
 
     // Proxies propios para planes Agencia+
