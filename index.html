@@ -1382,7 +1382,12 @@ async function ciaCallModel(mid,prompt,qtext,qi,total) {
   if(mode==='manual') return await ciaWaitManual(qtext,names[mid],qi,total)||'';
   if(mode==='sim'||(mode==='api'&&mid==='gemini')) return await ciaGemini(prompt);
   if(mode==='api'){
-    if(mid==='chatgpt')    return await ciaOpenAI('https://jairoamaya.co/openai-proxy.php','',el('cia-claude-model')?.value||'gpt-4o',prompt);
+   if(mid==='chatgpt') {
+  const r = await fetch('https://jairoamaya.co/openai-proxy.php', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({prompt, model:'gpt-4o'})});
+  if(!r.ok) throw new Error('OpenAI proxy '+r.status);
+  const d = await r.json();
+  return d.choices?.[0]?.message?.content || '';
+}
     if(mid==='perplexity') return await ciaOpenAI('https://api.perplexity.ai',el('cia-key-perplexity').value,'sonar-pro',prompt);
     if(mid==='claude'){
       const proxy=el('cia-claude-proxy')?.value||'https://jairoamaya.co/claude-proxy.php';
