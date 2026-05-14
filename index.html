@@ -1382,7 +1382,7 @@ async function ciaCallModel(mid,prompt,qtext,qi,total) {
   if(mode==='manual') return await ciaWaitManual(qtext,names[mid],qi,total)||'';
   if(mode==='sim'||(mode==='api'&&mid==='gemini')) return await ciaGemini(prompt);
   if(mode==='api'){
-    if(mid==='chatgpt')    return await ciaOpenAI('https://api.openai.com/v1',el('cia-key-chatgpt').value,'gpt-4o',prompt);
+    if(mid==='chatgpt')    return await ciaOpenAI('https://jairoamaya.co/openai-proxy.php','',el('cia-claude-model')?.value||'gpt-4o',prompt);
     if(mid==='perplexity') return await ciaOpenAI('https://api.perplexity.ai',el('cia-key-perplexity').value,'sonar-pro',prompt);
     if(mid==='claude'){
       const proxy=el('cia-claude-proxy')?.value||'https://jairoamaya.co/claude-proxy.php';
@@ -2247,6 +2247,6 @@ window.addEventListener('DOMContentLoaded', () => {
 // PDF export function intentionally omitted due to length - fully functional in production version
 function ciaPDF() { alert('PDF export: ver código fuente completo'); }
 </script>
-
+<script src="https://brand-visibility.jairoamaya.co/gate.js"></script>
 </body>
 </html>
