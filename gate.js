@@ -255,7 +255,7 @@ window.BrandGate = {
             this.saveSession({
                 email, name,
                 plan:    data.plan    || 'credits',
-                credits: data.credits || 10
+                credits: data.credits || 20
             });
             this.updateBadge();
         }
@@ -280,7 +280,7 @@ window.BrandGate = {
             badge.className = 'bc-badge';
             text.textContent = remaining > 0
                 ? remaining + ' estudio gratuito disponible'
-                : 'Regístrate para obtener 10 créditos';
+                : 'Regístrate para obtener 20 créditos';
             return;
         }
 
@@ -502,12 +502,12 @@ window.BrandGate = {
     <div style="background:#0d0d10;border:1px solid #2a2a32;border-radius:24px;width:100%;max-width:480px;font-family:'DM Sans',sans-serif;color:#e1e1e6;overflow:hidden;">
 
         <!-- VISTA: REGISTRO -->
-        <div id="bc-view-register" style="display:flex;flex-direction:column;padding:36px 32px;gap:20px;">
+        <div id="bc-view-register" style="display:flex;flex-direction:column;padding:40px 36px;gap:20px;">
             <div style="text-align:center;">
                 <div style="display:inline-block;background:rgba(157,78,221,0.12);border:1px solid rgba(157,78,221,0.3);color:#9d4edd;font-size:9px;font-weight:900;text-transform:uppercase;letter-spacing:2px;padding:5px 14px;border-radius:50px;margin-bottom:16px;">1 ESTUDIO GRATUITO USADO</div>
                 <div style="font-size:36px;margin-bottom:12px;">⚡</div>
-                <div style="font-family:'Fraunces',serif;font-size:28px;font-weight:900;font-style:italic;line-height:1.1;margin-bottom:10px;">Obtén <span style="color:#FFD60A;">10 créditos</span> gratis</div>
-                <p style="font-size:13px;color:#888;line-height:1.6;margin:0;">Regístrate y recibe 10 créditos — equivalen a estudios básicos sin costo adicional.</p>
+                <div style="font-family:'Fraunces',serif;font-size:28px;font-weight:900;font-style:italic;line-height:1.1;margin-bottom:10px;">Obtén <span style="color:#FFD60A;">20 créditos</span> gratis</div>
+                <p style="font-size:13px;color:#888;line-height:1.6;margin:0;">Regístrate y recibe 20 créditos — equivalen a 1 estudio completo sin costo adicional.</p>
             </div>
             <!-- Preview créditos -->
             <div style="display:flex;align-items:center;justify-content:center;gap:10px;">
@@ -517,7 +517,7 @@ window.BrandGate = {
                 </div>
                 <div style="font-size:18px;color:#333;font-weight:900;">+</div>
                 <div style="background:#111;border:1px solid #FFD60A;border-radius:10px;padding:12px 16px;text-align:center;">
-                    <div style="font-family:'Fraunces',serif;font-size:26px;font-weight:900;font-style:italic;color:#FFD60A;line-height:1;">10</div>
+                    <div style="font-family:'Fraunces',serif;font-size:26px;font-weight:900;font-style:italic;color:#FFD60A;line-height:1;">20</div>
                     <div style="font-size:9px;color:#666;text-transform:uppercase;font-weight:700;margin-top:4px;">Créditos<br>al registrarte</div>
                 </div>
             </div>
@@ -538,7 +538,7 @@ window.BrandGate = {
                 <div id="bc-reg-error" style="display:none;background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.25);border-radius:8px;padding:10px 14px;font-size:12px;color:#EF4444;font-weight:700;"></div>
                 <button id="bc-reg-submit" onclick="BrandGate.submitRegister()"
                     style="width:100%;background:#FFD60A;color:#000;border:none;border-radius:10px;padding:15px;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:900;text-transform:uppercase;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;min-height:50px;">
-                    <span id="bc-reg-btn-text">Reclamar 10 créditos →</span>
+                    <span id="bc-reg-btn-text">Reclamar 20 créditos →</span>
                     <div id="bc-reg-spinner" style="display:none;width:16px;height:16px;border:2px solid rgba(0,0,0,0.2);border-top-color:#000;border-radius:50%;animation:bc-spin 0.8s linear infinite;"></div>
                 </button>
                 <p style="text-align:center;font-size:10px;color:#444;font-weight:700;text-transform:uppercase;margin:0;">Sin spam · Sin tarjeta de crédito</p>
@@ -546,7 +546,7 @@ window.BrandGate = {
         </div>
 
         <!-- VISTA: COMPRA DE CRÉDITOS -->
-        <div id="bc-view-buy" style="display:none;flex-direction:column;padding:36px 32px;gap:20px;">
+        <div id="bc-view-buy" style="display:none;flex-direction:column;padding:40px 36px;gap:20px;">
             <div style="text-align:center;">
                 <div style="display:inline-block;background:rgba(219,39,119,0.12);border:1px solid rgba(219,39,119,0.3);color:#db2777;font-size:9px;font-weight:900;text-transform:uppercase;letter-spacing:2px;padding:5px 14px;border-radius:50px;margin-bottom:16px;">CRÉDITOS INSUFICIENTES</div>
                 <div style="font-size:36px;margin-bottom:12px;">💳</div>
@@ -632,7 +632,7 @@ window.BrandGate = {
         </div>
 
         <!-- VISTA: UPGRADE DE PLAN -->
-        <div id="bc-view-upgrade" style="display:none;flex-direction:column;padding:36px 32px;gap:20px;text-align:center;">
+        <div id="bc-view-upgrade" style="display:none;flex-direction:column;padding:40px 36px;gap:20px;text-align:center;">
             <div style="font-size:36px;">🔒</div>
             <div style="font-family:'Fraunces',serif;font-size:28px;font-weight:900;font-style:italic;line-height:1.1;">Modelos <span style="color:#FFD60A;">Agencia+</span></div>
             <p style="font-size:13px;color:#888;line-height:1.6;margin:0;">Los modelos <strong id="bc-blocked-models" style="color:#fff;"></strong> están disponibles desde el Plan Agencia.</p>
@@ -805,7 +805,7 @@ window.BrandGate = {
             this.lockModelToggles();
             const msg = result.existing
                 ? '✅ ¡Bienvenido de nuevo ' + name + '! Saldo: ' + result.credits + ' créditos.'
-                : '✅ ¡Bienvenido ' + name + '! Tienes 10 créditos para empezar.';
+                : '✅ ¡Bienvenido ' + name + '! Tienes 20 créditos para empezar.';
             bcShowToast(msg, 'success', 5000);
         } catch(e) {
             errEl.textContent = 'Error al conectar. Intenta de nuevo.';
@@ -813,7 +813,7 @@ window.BrandGate = {
         }
 
         btn.disabled = false;
-        btnTxt.textContent = 'Reclamar 10 créditos →';
+        btnTxt.textContent = 'Reclamar 20 créditos →';
         spinner.style.display = 'none';
     }
 };
