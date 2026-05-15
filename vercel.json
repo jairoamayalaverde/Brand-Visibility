@@ -1,6 +1,21 @@
 {
   "cleanUrls": true,
   "trailingSlash": false,
+  "outputDirectory": ".",
+  "routes": [
+    {
+      "src": "/gate.js",
+      "dest": "/gate.js"
+    },
+    {
+      "src": "/report-generator",
+      "dest": "/report-generator.html"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/index.html"
+    }
+  ],
   "headers": [
     {
       "source": "/(.*)",
