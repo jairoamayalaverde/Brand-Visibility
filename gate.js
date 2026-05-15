@@ -10,7 +10,7 @@
 // ── CONFIGURACIÓN ─────────────────────────────────────────────
 var BC_CONFIG = {
     SUPABASE_URL:  'https://vrhztgfgbjirmpbbdcks.supabase.co',
-    SUPABASE_KEY:  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZyaHp0Z2ZnYmppcm1wYmJkY2tzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzA1ODMxODUsImV4cCI6MjA4NjE1OTE4NX0.wkkxiZcLaADcGBLFvnAECHKLD7uLTinlVnvN4VjYElU',
+    SUPABASE_KEY:  'TU_ANON_KEY_AQUI',
     EDGE_FN:       'https://vrhztgfgbjirmpbbdcks.supabase.co/functions/v1/bc-credits-manager',
 
     // Proxies propios para planes Agencia+
@@ -790,16 +790,16 @@ window.BrandGate = {
 
     // Links de Wompi — packs de créditos
     WOMPI_PACK_LINKS: {
-        pack_100: 'https://checkout.wompi.co/l/PACK_100_LINK',
-        pack_250: 'https://checkout.wompi.co/l/PACK_250_LINK',
-        pack_500: 'https://checkout.wompi.co/l/PACK_500_LINK'
+        pack_100: 'https://checkout.wompi.co/l/FnxqJa',
+        pack_250: 'https://checkout.wompi.co/l/LNLri4',
+        pack_500: 'https://checkout.wompi.co/l/lyNQ8h'
     },
 
     // Links de Wompi — suscripciones
     WOMPI_SUB_LINKS: {
-        analista:   'https://checkout.wompi.co/l/SUB_ANALISTA_LINK',
-        agencia:    'https://checkout.wompi.co/l/SUB_AGENCIA_LINK',
-        enterprise: 'https://checkout.wompi.co/l/SUB_ENTERPRISE_LINK'
+        analista:   'https://checkout.wompi.co/l/uaJGX0',
+        agencia:    'https://checkout.wompi.co/l/pXyFWC',
+        enterprise: 'https://checkout.wompi.co/l/3OoUMK'
     },
 
     submitBuy() {
