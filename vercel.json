@@ -12,6 +12,10 @@
       "dest": "/report-generator.html"
     },
     {
+      "src": "/precios",
+      "dest": "/precios.html"
+    },
+    {
       "src": "/(.*)",
       "dest": "/index.html"
     }
