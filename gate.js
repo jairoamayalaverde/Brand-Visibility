@@ -509,10 +509,34 @@ window.BrandGate = {
         const allMods = ['gemini', 'claude', 'chatgpt', 'perplexity', 'custom'];
 
         allMods.forEach(mid => {
-            if (allowed.includes(mid)) return;
             const toggle = document.getElementById('cia-tog-' + mid);
             const card   = document.getElementById('cia-mc-' + mid);
             const badge  = document.getElementById('cia-mbadge-' + mid);
+
+            if (allowed.includes(mid)) {
+                // Modelo permitido — activar si es chatgpt o perplexity (que vienen off por defecto en HTML)
+                if ((mid === 'chatgpt' || mid === 'perplexity') && toggle && !toggle.disabled) {
+                    toggle.checked = true;
+                    toggle.disabled = false;
+                    if (card) {
+                        card.classList.add('on');
+                        card.style.opacity = '';
+                        card.style.pointerEvents = '';
+                        card.title = '';
+                    }
+                    if (badge) {
+                        badge.className = 'cia-mbadge ba';
+                        badge.textContent = 'API Auto';
+                    }
+                    // Disparar ciaMToggle para actualizar el contador de modelos activos
+                    if (typeof window.ciaMToggle === 'function') {
+                        window.ciaMToggle(mid);
+                    }
+                }
+                return;
+            }
+
+            // Modelo NO permitido — bloquear
             if (toggle) {
                 toggle.checked  = false;
                 toggle.disabled = true;
