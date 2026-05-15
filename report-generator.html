@@ -773,6 +773,26 @@ function buildReportHTML(data, email, plan) {
   // Marcas list
   var marcasList = (config.marcas || []).join(', ');
 
+  // ── DATOS PARA GRÁFICAS ──
+  // Gráfica 1: Share of Voice — labels y valores
+  var chartLabels = JSON.stringify(ranking.map(function(r){ return r.marca; }));
+  var chartSoV    = JSON.stringify(ranking.map(function(r){ return (r.performance && r.performance.share_of_voice_pct) ? r.performance.share_of_voice_pct : 0; }));
+  var chartColors = JSON.stringify(ranking.map(function(r, i){ return i === 0 ? '#f4b942' : '#9d5cff'; }));
+
+  // Gráfica 2: Distribución por bloque — menciones orgánicas vs dirigidas
+  var chartOrg  = JSON.stringify(ranking.map(function(r){ return r.organico || 0; }));
+  var chartDir  = JSON.stringify(ranking.map(function(r){ return r.dirigido || 0; }));
+
+  // Gráfica 3: Scatter eficiencia orgánica vs liderazgo
+  var chartScatter = JSON.stringify(ranking.map(function(r){
+    var perf = r.performance || {};
+    return {
+      x: perf.eficiencia_organica || 0,
+      y: perf.eficiencia_total || 0,
+      label: r.marca
+    };
+  }));
+
   // Build final HTML — sin backticks anidados
   var html = '<!DOCTYPE html>\n' +
     '<html lang="es">\n' +
@@ -852,7 +872,14 @@ function buildReportHTML(data, email, plan) {
     '.footer-brand{font-family:"Newsreader",Georgia,serif;font-size:18px;font-weight:600;font-style:italic;color:var(--text);margin-bottom:12px;}\n' +
     '.footer-tag{font-size:14px;color:var(--text3);margin-bottom:32px;}\n' +
     '.footer-link{font-family:"JetBrains Mono",monospace;font-size:13px;color:var(--gold);text-decoration:none;}\n' +
-    '.footer-gen{font-family:"JetBrains Mono",monospace;font-size:10px;color:var(--text4);margin-top:16px;text-transform:uppercase;letter-spacing:.1em;}\n' +
+    '.footer-gen{font-family:\"JetBrains Mono\",monospace;font-size:10px;color:var(--text4);margin-top:16px;text-transform:uppercase;letter-spacing:.1em;}\n' +
+    '.chart-section{background:var(--bg2);border:1px solid var(--border2);border-radius:16px;padding:32px;margin-top:32px;}\n' +
+    '.chart-title{font-family:\"Newsreader\",Georgia,serif;font-size:20px;font-weight:600;color:var(--text);margin-bottom:6px;}\n' +
+    '.chart-sub{font-family:\"JetBrains Mono\",monospace;font-size:10px;text-transform:uppercase;letter-spacing:.1em;color:var(--text4);margin-bottom:20px;}\n' +
+    '.charts-grid{display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-top:32px;}\n' +
+    '.chart-wrap{background:var(--bg2);border:1px solid var(--border2);border-radius:12px;padding:24px;}\n' +
+    '.chart-wrap-full{background:var(--bg2);border:1px solid var(--border2);border-radius:12px;padding:24px;margin-top:24px;}\n' +
+    '@media(max-width:768px){.charts-grid{grid-template-columns:1fr;}}\n' +
     '@media(max-width:768px){.container{padding:48px 24px 80px;}.row-head,.row{grid-template-columns:40px 1fr 80px;gap:12px;padding:16px 20px;}.row-head :nth-child(n+4),.row :nth-child(n+4){display:none;}.exec{padding:32px 24px;}.watermark{display:none;}}\n' +
     '@media print{.watermark{position:fixed;bottom:10mm;right:10mm;}.container{max-width:100%;padding:20mm;}section{page-break-inside:avoid;}}\n' +
     '</style>\n' +
@@ -907,6 +934,27 @@ function buildReportHTML(data, email, plan) {
     opText +
     '</div>\n' +
     '</section>\n' +
+    '<section>\n' +
+    '<div class=\"label\">Insight #4</div><h2>An\u00e1lisis Visual</h2>\n' +
+    '<p class=\"subtitle\">Tres dimensiones de la citabilidad en IA</p>\n' +
+    '<div class=\"charts-grid\">\n' +
+    '<div class=\"chart-wrap\">\n' +
+    '<div class=\"chart-title\">Share of Voice</div>\n' +
+    '<div class=\"chart-sub\">% de menciones org\u00e1nicas por marca</div>\n' +
+    '<canvas id=\"chart-sov\" height=\"260\"></canvas>\n' +
+    '</div>\n' +
+    '<div class=\"chart-wrap\">\n' +
+    '<div class=\"chart-title\">Org\u00e1nico vs Dirigido</div>\n' +
+    '<div class=\"chart-sub\">Menciones por tipo de pregunta</div>\n' +
+    '<canvas id=\"chart-blocks\" height=\"260\"></canvas>\n' +
+    '</div>\n' +
+    '</div>\n' +
+    '<div class=\"chart-wrap-full\">\n' +
+    '<div class=\"chart-title\">Eficiencia vs Liderazgo</div>\n' +
+    '<div class=\"chart-sub\">Cu\u00e1ndo aparece cada marca y si lidera la respuesta</div>\n' +
+    '<canvas id=\"chart-scatter\" height=\"320\"></canvas>\n' +
+    '</div>\n' +
+    '</section>\n' +
     '<footer>\n' +
     '<div class="footer-brand">Jairo Amaya Consulting</div>\n' +
     '<div class="footer-tag">Soberan\u00eda Sem\u00e1ntica &middot; WebMCP &middot; Agentive Visibility</div>\n' +
@@ -914,6 +962,38 @@ function buildReportHTML(data, email, plan) {
     '<div class="footer-gen">Generado con Brand Citability Report Generator &middot; Plan ' + plan + '</div>\n' +
     '</footer>\n' +
     '</div>\n' +
+    '<scr' + 'ipt src=\"https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js\"></scr' + 'ipt>\n' +
+    '<scr' + 'ipt>\n' +
+    '(function(){\n' +
+    'var LABELS  = ' + chartLabels + ';\n' +
+    'var SOV     = ' + chartSoV + ';\n' +
+    'var COLORS  = ' + chartColors + ';\n' +
+    'var ORG     = ' + chartOrg + ';\n' +
+    'var DIR     = ' + chartDir + ';\n' +
+    'var SCATTER = ' + chartScatter + ';\n' +
+    'var DFONT   = { family: \"DM Sans, sans-serif\", size: 12 };\n' +
+    'var GRID    = { color: \"rgba(255,255,255,0.05)\" };\n' +
+    'var TICK    = { color: \"#62626d\", font: DFONT };\n' +
+    '// Chart 1 — Share of Voice barras horizontales\n' +
+    'new Chart(document.getElementById(\"chart-sov\"), {\n' +
+    '  type: \"bar\",\n' +
+    '  data: { labels: LABELS, datasets: [{ label: \"Share of Voice %\", data: SOV, backgroundColor: COLORS, borderRadius: 6, borderSkipped: false }] },\n' +
+    '  options: { indexAxis: \"y\", responsive: true, plugins: { legend: { display: false }, tooltip: { callbacks: { label: function(c){ return \" \" + c.raw + \"% SoV\"; } } } }, scales: { x: { grid: GRID, ticks: TICK, max: 100 }, y: { grid: { display: false }, ticks: TICK } } }\n' +
+    '});\n' +
+    '// Chart 2 — Orgánico vs Dirigido barras agrupadas\n' +
+    'new Chart(document.getElementById(\"chart-blocks\"), {\n' +
+    '  type: \"bar\",\n' +
+    '  data: { labels: LABELS, datasets: [{ label: \"Org\u00e1nico\", data: ORG, backgroundColor: \"#9d5cff\", borderRadius: 4 }, { label: \"Dirigido\", data: DIR, backgroundColor: \"#f4b942\", borderRadius: 4 }] },\n' +
+    '  options: { responsive: true, plugins: { legend: { labels: { color: \"#8a8a95\", font: DFONT } } }, scales: { x: { grid: { display: false }, ticks: TICK }, y: { grid: GRID, ticks: TICK } } }\n' +
+    '});\n' +
+    '// Chart 3 — Scatter eficiencia vs liderazgo\n' +
+    'new Chart(document.getElementById(\"chart-scatter\"), {\n' +
+    '  type: \"scatter\",\n' +
+    '  data: { datasets: SCATTER.map(function(p, i){ return { label: p.label, data: [{ x: p.x, y: p.y }], backgroundColor: i === 0 ? \"#f4b942\" : \"#9d5cff\", pointRadius: 10, pointHoverRadius: 13 }; }) },\n' +
+    '  options: { responsive: true, plugins: { legend: { labels: { color: \"#8a8a95\", font: DFONT } }, tooltip: { callbacks: { label: function(c){ return c.dataset.label + \" — Efic: \" + c.parsed.x + \"% · Lid: \" + c.parsed.y + \"%\"; } } } }, scales: { x: { title: { display: true, text: \"Eficiencia Org\u00e1nica %\", color: \"#62626d\", font: DFONT }, grid: GRID, ticks: TICK, min: 0, max: 100 }, y: { title: { display: true, text: \"Liderazgo Total %\", color: \"#62626d\", font: DFONT }, grid: GRID, ticks: TICK, min: 0, max: 100 } } }\n' +
+    '});\n' +
+    '})();\n' +
+    '</scr' + 'ipt>\n' +
     '</body>\n' +
     '</html>';
 
