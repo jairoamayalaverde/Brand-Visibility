@@ -290,7 +290,21 @@ window.BrandGate = {
 
         if (['analista', 'agencia', 'enterprise'].includes(plan)) {
             badge.className = 'bc-badge bc-badge--pro';
-            text.textContent = name + ' · Plan ' + plan.charAt(0).toUpperCase() + plan.slice(1);
+            const planLabel = plan.charAt(0).toUpperCase() + plan.slice(1);
+            const canReport = ['agencia', 'enterprise'].includes(plan);
+            if (canReport) {
+                text.innerHTML = name + ' · Plan ' + planLabel +
+                    ' &nbsp;<a href="/report-generator" target="_blank" ' +
+                    'style="color:var(--ja-yellow,#FFD60A);font-size:9px;font-weight:900;' +
+                    'text-transform:uppercase;letter-spacing:1px;text-decoration:none;' +
+                    'border:1px solid rgba(255,214,10,0.3);padding:2px 8px;border-radius:4px;' +
+                    'margin-left:4px;transition:all 0.2s;" ' +
+                    'onmouseover="this.style.background='rgba(255,214,10,0.1)'" ' +
+                    'onmouseout="this.style.background='transparent'">' +
+                    '📄 Report Generator</a>';
+            } else {
+                text.textContent = name + ' · Plan ' + planLabel;
+            }
         } else if (credits >= 30) {
             badge.className = 'bc-badge bc-badge--ok';
             text.textContent = credits + ' créditos · ' + name;
@@ -391,6 +405,9 @@ window.BrandGate = {
                 }
 
                 self.updateBadge();
+
+                // Inyectar botón Report Generator si el plan lo permite
+                self.injectReportBtn();
             };
         }
 
@@ -435,6 +452,55 @@ window.BrandGate = {
 
         // 4. Bloquear toggles de modelos no permitidos en UI
         this.lockModelToggles();
+    },
+
+    // ── BOTÓN REPORT GENERATOR POST-ESTUDIO ──────────────────
+    injectReportBtn() {
+        const plan = this.getPlan();
+        if (!['agencia', 'enterprise'].includes(plan)) return;
+
+        // Evitar duplicados
+        if (document.getElementById('bc-report-gen-btn')) return;
+
+        // Buscar el área de run para inyectar debajo
+        const runArea = document.querySelector('#cia-agent .cia-run');
+        if (!runArea) return;
+
+        const btn = document.createElement('a');
+        btn.id = 'bc-report-gen-btn';
+        btn.href = '/report-generator';
+        btn.target = '_blank';
+        btn.style.cssText = [
+            'display:flex',
+            'align-items:center',
+            'justify-content:center',
+            'gap:8px',
+            'width:100%',
+            'padding:12px',
+            'background:rgba(255,214,10,0.08)',
+            'border:1px solid rgba(255,214,10,0.25)',
+            'border-radius:8px',
+            'color:#FFD60A',
+            'font-family:"DM Sans",sans-serif',
+            'font-size:11px',
+            'font-weight:900',
+            'text-transform:uppercase',
+            'letter-spacing:1px',
+            'text-decoration:none',
+            'transition:all 0.2s',
+            'margin-top:8px'
+        ].join(';');
+        btn.innerHTML = '📄 Generar Reporte HTML';
+        btn.onmouseover = function() {
+            this.style.background = 'rgba(255,214,10,0.15)';
+            this.style.borderColor = 'rgba(255,214,10,0.5)';
+        };
+        btn.onmouseout = function() {
+            this.style.background = 'rgba(255,214,10,0.08)';
+            this.style.borderColor = 'rgba(255,214,10,0.25)';
+        };
+
+        runArea.appendChild(btn);
     },
 
     // ── BLOQUEAR MODELOS NO PERMITIDOS EN UI ──────────────────
