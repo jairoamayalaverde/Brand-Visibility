@@ -1,0 +1,1181 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Precios — Brand Citability</title>
+<meta name="description" content="Mide cómo te citan los LLMs. Planes desde $79.000 COP.">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,400;0,700;0,900;1,900&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+
+/* ══════════════════════════════════════════════════════
+   BRAND CITABILITY — PRECIOS
+   Estética: Editorial oscuro + detalles de precisión
+   Tipografía: Poppins (display + body) + DM Mono
+   ══════════════════════════════════════════════════════ */
+
+:root {
+  --bg:        #070709;
+  --bg2:       #0d0d10;
+  --bg3:       #13131a;
+  --surface:   #1a1a24;
+  --border:    #2a2a3a;
+  --border2:   #1e1e2a;
+  --purple:    #9d4edd;
+  --purple2:   #7b2cbf;
+  --purple-dim:#4a1a7a;
+  --yellow:    #FFD60A;
+  --yellow2:   #FFC300;
+  --yellow-dim:#7a6400;
+  --green:     #22C55E;
+  --red:       #EF4444;
+  --text:      #f0f0f4;
+  --text2:     #c4c4cc;
+  --text3:     #8a8a95;
+  --text4:     #52525a;
+  --mono:      'DM Mono', monospace;
+  --sans:      'Poppins', sans-serif;
+  --display:   'Poppins', sans-serif;
+}
+
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: var(--sans);
+  background: var(--bg);
+  color: var(--text2);
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+
+/* ── GRAIN TEXTURE OVERLAY ── */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+  pointer-events: none;
+  z-index: 999;
+  opacity: 0.4;
+}
+
+/* ── ANIMATED BACKGROUND ── */
+.bg-glow {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  overflow: hidden;
+}
+
+.bg-glow::before {
+  content: '';
+  position: absolute;
+  top: -20%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 800px;
+  height: 600px;
+  background: radial-gradient(ellipse, rgba(157,78,221,0.12) 0%, transparent 70%);
+  animation: drift 12s ease-in-out infinite alternate;
+}
+
+.bg-glow::after {
+  content: '';
+  position: absolute;
+  bottom: -10%;
+  right: -10%;
+  width: 500px;
+  height: 500px;
+  background: radial-gradient(ellipse, rgba(255,214,10,0.06) 0%, transparent 65%);
+  animation: drift2 9s ease-in-out infinite alternate;
+}
+
+@keyframes drift  { from { transform: translateX(-50%) translateY(0);    } to { transform: translateX(-50%) translateY(40px);  } }
+@keyframes drift2 { from { transform: translate(0, 0);   } to { transform: translate(-30px, -20px); } }
+
+/* ── LAYOUT ── */
+.page { position: relative; z-index: 1; }
+
+.container {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 0 40px;
+}
+
+/* ── NAV ── */
+nav {
+  padding: 28px 0;
+  border-bottom: 1px solid var(--border2);
+  position: sticky;
+  top: 0;
+  background: rgba(7,7,9,0.85);
+  backdrop-filter: blur(16px);
+  z-index: 100;
+}
+
+.nav-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.nav-logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  text-decoration: none;
+}
+
+.nav-dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: var(--purple);
+  box-shadow: 0 0 10px rgba(157,78,221,0.7);
+  animation: pulse 2.4s infinite;
+}
+
+@keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.4;transform:scale(0.85)} }
+
+.nav-brand {
+  font-family: var(--display);
+  font-size: 14px;
+  font-weight: 900;
+  font-style: italic;
+  color: var(--text);
+  letter-spacing: -0.01em;
+}
+
+.nav-brand span { color: var(--purple); }
+
+.nav-tag {
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--text4);
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+}
+
+.nav-back {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--text3);
+  text-decoration: none;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  transition: color 0.2s;
+}
+
+.nav-back:hover { color: var(--yellow); }
+
+/* ── HERO ── */
+.hero {
+  padding: 100px 0 80px;
+  text-align: center;
+}
+
+.hero-eyebrow {
+  font-family: var(--mono);
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.2em;
+  color: var(--purple);
+  margin-bottom: 24px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.hero-eyebrow::before,
+.hero-eyebrow::after {
+  content: '';
+  display: block;
+  width: 24px;
+  height: 1px;
+  background: var(--purple);
+  opacity: 0.5;
+}
+
+.hero-title {
+  font-family: var(--display);
+  font-size: clamp(48px, 7vw, 80px);
+  font-weight: 900;
+  font-style: italic;
+  line-height: 1.0;
+  letter-spacing: -0.02em;
+  color: var(--text);
+  margin-bottom: 20px;
+}
+
+.hero-title em {
+  color: var(--yellow);
+  font-style: italic;
+}
+
+.hero-sub {
+  font-size: 18px;
+  color: var(--text3);
+  max-width: 520px;
+  margin: 0 auto 48px;
+  line-height: 1.6;
+}
+
+/* BILLING TOGGLE */
+.billing-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 50px;
+  padding: 6px 6px 6px 16px;
+  margin-bottom: 80px;
+}
+
+.billing-label {
+  font-family: var(--mono);
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--text3);
+}
+
+.billing-options {
+  display: flex;
+  gap: 4px;
+}
+
+.billing-opt {
+  font-family: var(--mono);
+  font-size: 10px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  padding: 6px 14px;
+  border-radius: 50px;
+  border: none;
+  background: transparent;
+  color: var(--text3);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.billing-opt.active {
+  background: var(--yellow);
+  color: #000;
+}
+
+/* ── PRICING GRID ── */
+.pricing-section { padding-bottom: 120px; }
+
+.pricing-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 2px;
+  background: var(--border2);
+  border: 1px solid var(--border2);
+  border-radius: 20px;
+  overflow: hidden;
+  margin-bottom: 60px;
+}
+
+/* ── PLAN CARD ── */
+.plan {
+  background: var(--bg2);
+  padding: 40px 32px;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  transition: background 0.3s;
+}
+
+.plan:hover { background: var(--bg3); }
+
+.plan.featured {
+  background: var(--bg3);
+  position: relative;
+}
+
+.plan.featured::before {
+  content: 'MÁS POPULAR';
+  position: absolute;
+  top: 0; left: 50%;
+  transform: translateX(-50%);
+  font-family: var(--mono);
+  font-size: 9px;
+  font-weight: 500;
+  letter-spacing: 0.2em;
+  color: #000;
+  background: var(--yellow);
+  padding: 4px 16px;
+  border-radius: 0 0 8px 8px;
+}
+
+/* Plan header */
+.plan-eyebrow {
+  font-family: var(--mono);
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  color: var(--text4);
+  margin-bottom: 12px;
+  margin-top: 8px;
+}
+
+.plan.featured .plan-eyebrow { color: var(--yellow-dim); }
+
+.plan-name {
+  font-family: var(--display);
+  font-size: 28px;
+  font-weight: 900;
+  font-style: italic;
+  color: var(--text);
+  letter-spacing: -0.02em;
+  margin-bottom: 8px;
+}
+
+.plan-desc {
+  font-size: 13px;
+  color: var(--text3);
+  line-height: 1.5;
+  margin-bottom: 32px;
+  min-height: 40px;
+}
+
+/* Price */
+.plan-price-wrap {
+  margin-bottom: 32px;
+}
+
+.plan-price {
+  font-family: var(--display);
+  font-size: 48px;
+  font-weight: 700;
+  font-style: italic;
+  color: var(--text);
+  line-height: 1;
+  letter-spacing: -0.03em;
+}
+
+.plan-price-currency {
+  font-size: 22px;
+  font-weight: 300;
+  vertical-align: super;
+  color: var(--text3);
+  font-style: normal;
+  letter-spacing: 0;
+}
+
+.plan-price-period {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--text4);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  margin-top: 6px;
+}
+
+.plan-price-sub {
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--text4);
+  margin-top: 4px;
+}
+
+/* Credits pill */
+.plan-credits {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(157,78,221,0.1);
+  border: 1px solid rgba(157,78,221,0.2);
+  border-radius: 50px;
+  padding: 5px 12px;
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--purple);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  margin-bottom: 28px;
+}
+
+.plan.featured .plan-credits {
+  background: rgba(255,214,10,0.1);
+  border-color: rgba(255,214,10,0.25);
+  color: var(--yellow);
+}
+
+.plan-credits-dot {
+  width: 5px; height: 5px;
+  border-radius: 50%;
+  background: currentColor;
+}
+
+/* Features */
+.plan-features {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  flex: 1;
+  margin-bottom: 36px;
+}
+
+.plan-feature {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  font-size: 13px;
+  color: var(--text2);
+  line-height: 1.4;
+}
+
+.plan-feature-icon {
+  flex-shrink: 0;
+  width: 16px;
+  height: 16px;
+  margin-top: 1px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.plan-feature-icon.check { color: var(--green); font-size: 12px; }
+.plan-feature-icon.star  { color: var(--yellow); font-size: 10px; }
+.plan-feature-icon.lock  { color: var(--text4); font-size: 10px; }
+
+.plan-feature.muted { color: var(--text4); }
+
+/* CTA Button */
+.plan-cta {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  padding: 14px 20px;
+  border-radius: 10px;
+  font-family: var(--sans);
+  font-size: 13px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  text-decoration: none;
+  cursor: pointer;
+  border: none;
+  transition: all 0.25s;
+  min-height: 48px;
+}
+
+.plan-cta.outline {
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--text2);
+}
+
+.plan-cta.outline:hover {
+  border-color: var(--purple);
+  color: var(--purple);
+  background: rgba(157,78,221,0.06);
+}
+
+.plan-cta.primary {
+  background: var(--yellow);
+  color: #000;
+}
+
+.plan-cta.primary:hover {
+  background: var(--yellow2);
+  transform: translateY(-2px);
+  box-shadow: 0 12px 32px rgba(255,214,10,0.2);
+}
+
+.plan-cta.purple-btn {
+  background: var(--purple);
+  color: #fff;
+}
+
+.plan-cta.purple-btn:hover {
+  background: var(--purple2);
+  transform: translateY(-2px);
+  box-shadow: 0 12px 32px rgba(157,78,221,0.25);
+}
+
+.plan-cta.ghost {
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--text3);
+  font-size: 12px;
+}
+
+.plan-cta.ghost:hover {
+  border-color: var(--text3);
+  color: var(--text);
+}
+
+/* ── PACKS SECTION ── */
+.packs-section {
+  padding-bottom: 120px;
+}
+
+.section-header {
+  text-align: center;
+  margin-bottom: 56px;
+}
+
+.section-eyebrow {
+  font-family: var(--mono);
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.2em;
+  color: var(--purple);
+  margin-bottom: 14px;
+}
+
+.section-title {
+  font-family: var(--display);
+  font-size: clamp(32px, 4vw, 48px);
+  font-weight: 900;
+  font-style: italic;
+  color: var(--text);
+  letter-spacing: -0.02em;
+  margin-bottom: 12px;
+}
+
+.section-sub {
+  font-size: 16px;
+  color: var(--text3);
+}
+
+.packs-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+}
+
+.pack-card {
+  background: var(--bg2);
+  border: 1px solid var(--border2);
+  border-radius: 16px;
+  padding: 32px 28px;
+  display: flex;
+  flex-direction: column;
+  transition: all 0.3s;
+  position: relative;
+}
+
+.pack-card:hover {
+  border-color: var(--border);
+  transform: translateY(-4px);
+  background: var(--bg3);
+}
+
+.pack-card.featured-pack {
+  border-color: rgba(255,214,10,0.25);
+}
+
+.pack-card.featured-pack::before {
+  content: 'MEJOR VALOR';
+  position: absolute;
+  top: -1px; right: 24px;
+  font-family: var(--mono);
+  font-size: 8px;
+  font-weight: 500;
+  letter-spacing: 0.15em;
+  color: #000;
+  background: var(--yellow);
+  padding: 3px 10px;
+  border-radius: 0 0 6px 6px;
+}
+
+.pack-name {
+  font-family: var(--mono);
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  color: var(--text4);
+  margin-bottom: 16px;
+}
+
+.pack-credits-big {
+  font-family: var(--display);
+  font-size: 56px;
+  font-weight: 900;
+  font-style: italic;
+  color: var(--text);
+  line-height: 1;
+  letter-spacing: -0.03em;
+  margin-bottom: 4px;
+}
+
+.pack-credits-label {
+  font-family: var(--mono);
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--text4);
+  margin-bottom: 20px;
+}
+
+.pack-analyses {
+  font-size: 13px;
+  color: var(--text3);
+  margin-bottom: 4px;
+}
+
+.pack-per {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--text4);
+  margin-bottom: 28px;
+}
+
+.pack-divider {
+  height: 1px;
+  background: var(--border2);
+  margin-bottom: 24px;
+}
+
+.pack-price-row {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  margin-bottom: 16px;
+}
+
+.pack-price {
+  font-family: var(--display);
+  font-size: 32px;
+  font-weight: 700;
+  font-style: italic;
+  color: var(--text);
+  letter-spacing: -0.02em;
+}
+
+.pack-currency {
+  font-size: 14px;
+  color: var(--text3);
+  font-weight: 300;
+}
+
+.pack-period {
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--text4);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+/* ── FAQ ── */
+.faq-section {
+  padding-bottom: 120px;
+  max-width: 680px;
+  margin: 0 auto;
+}
+
+.faq-item {
+  border-bottom: 1px solid var(--border2);
+}
+
+.faq-question {
+  width: 100%;
+  background: none;
+  border: none;
+  text-align: left;
+  padding: 22px 0;
+  font-family: var(--sans);
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text2);
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  transition: color 0.2s;
+}
+
+.faq-question:hover { color: var(--text); }
+.faq-question[aria-expanded="true"] { color: var(--yellow); }
+
+.faq-arrow {
+  font-size: 16px;
+  color: var(--text4);
+  transition: transform 0.3s, color 0.2s;
+  flex-shrink: 0;
+}
+
+.faq-question[aria-expanded="true"] .faq-arrow {
+  transform: rotate(180deg);
+  color: var(--yellow);
+}
+
+.faq-answer {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.35s ease, padding 0.25s ease;
+}
+
+.faq-answer.open {
+  max-height: 400px;
+  padding-bottom: 20px;
+}
+
+.faq-answer p {
+  font-size: 14px;
+  color: var(--text3);
+  line-height: 1.75;
+  margin-bottom: 8px;
+}
+
+.faq-answer p:last-child { margin-bottom: 0; }
+
+.faq-answer code {
+  background: var(--surface);
+  padding: 2px 7px;
+  border-radius: 4px;
+  font-family: var(--mono);
+  font-size: 12px;
+  color: var(--text2);
+}
+
+/* ── FOOTER ── */
+footer {
+  border-top: 1px solid var(--border2);
+  padding: 48px 0;
+}
+
+.footer-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.footer-brand {
+  font-family: var(--display);
+  font-size: 15px;
+  font-weight: 700;
+  font-style: italic;
+  color: var(--text);
+}
+
+.footer-links {
+  display: flex;
+  gap: 24px;
+}
+
+.footer-link {
+  font-family: var(--mono);
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--text4);
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+.footer-link:hover { color: var(--yellow); }
+
+/* ── ANIMATIONS ── */
+.reveal {
+  opacity: 0;
+  transform: translateY(24px);
+  transition: opacity 0.7s ease, transform 0.7s ease;
+}
+
+.reveal.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* ── RESPONSIVE ── */
+@media (max-width: 900px) {
+  .container { padding: 0 24px; }
+  .pricing-grid { grid-template-columns: 1fr; gap: 1px; border-radius: 16px; }
+  .plan.featured::before { display: none; }
+  .packs-grid { grid-template-columns: 1fr; }
+  .hero-title { font-size: clamp(40px, 10vw, 60px); }
+}
+
+@media (max-width: 600px) {
+  .billing-toggle { flex-direction: column; gap: 8px; border-radius: 12px; padding: 12px 16px; }
+  .footer-inner { flex-direction: column; text-align: center; }
+  .footer-links { flex-wrap: wrap; justify-content: center; }
+}
+
+</style>
+</head>
+<body>
+
+<div class="bg-glow"></div>
+
+<div class="page">
+
+<!-- NAV -->
+<nav>
+  <div class="container">
+    <div class="nav-inner">
+      <a href="/" class="nav-logo">
+        <div class="nav-dot"></div>
+        <div class="nav-brand">Jairo Amaya <span style="color:var(--text4);font-size:13px;font-weight:400;font-style:normal;"> · </span><span>Full Stack Marketer</span></div>
+      </a>
+      <div class="nav-tag">Precios</div>
+      <a href="/" class="nav-back">← Volver a la herramienta</a>
+    </div>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="container">
+    <div class="hero-eyebrow">Planes y precios</div>
+    <h1 class="hero-title">
+      Mide quién te cita.<br>
+      <em>Domina la IA.</em>
+    </h1>
+    <p class="hero-sub">
+      Desde un análisis gratuito hasta estudios multi-modelo con 4 LLMs simultáneos. Sin contratos. Sin sorpresas.
+    </p>
+
+    <div class="billing-toggle">
+      <span class="billing-label">Ver</span>
+      <div class="billing-options">
+        <button class="billing-opt active" id="toggle-subs" onclick="showPlans('subs')">Suscripciones</button>
+        <button class="billing-opt" id="toggle-packs" onclick="showPlans('packs')">Packs de créditos</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SUSCRIPCIONES -->
+<section class="pricing-section" id="view-subs">
+  <div class="container">
+    <div class="pricing-grid reveal">
+
+      <!-- ANALISTA -->
+      <div class="plan">
+        <div class="plan-eyebrow">Para consultores</div>
+        <div class="plan-name">Analista</div>
+        <div class="plan-desc">Auditorías regulares con los dos modelos más potentes del mercado.</div>
+        <div class="plan-price-wrap">
+          <div class="plan-price">
+            <span class="plan-price-currency">$</span>99.000
+          </div>
+          <div class="plan-price-period">COP / mes</div>
+          <div class="plan-price-sub">≈ 13 análisis básicos al mes</div>
+        </div>
+        <div class="plan-credits">
+          <div class="plan-credits-dot"></div>
+          200 créditos / mes
+        </div>
+        <ul class="plan-features">
+          <li class="plan-feature"><span class="plan-feature-icon check">✓</span> Gemini 2.0 Flash</li>
+          <li class="plan-feature"><span class="plan-feature-icon check">✓</span> Claude Sonnet</li>
+          <li class="plan-feature"><span class="plan-feature-icon check">✓</span> Hasta 75 preguntas por estudio</li>
+          <li class="plan-feature"><span class="plan-feature-icon check">✓</span> Citation Graph semántico</li>
+          <li class="plan-feature"><span class="plan-feature-icon check">✓</span> Commercial Insights & Quick Wins</li>
+          <li class="plan-feature"><span class="plan-feature-icon check">✓</span> Historial ilimitado en Supabase</li>
+          <li class="plan-feature muted"><span class="plan-feature-icon lock">○</span> GPT-4o (OpenAI)</li>
+          <li class="plan-feature muted"><span class="plan-feature-icon lock">○</span> Sonar Pro (Perplexity)</li>
+          <li class="plan-feature muted"><span class="plan-feature-icon lock">○</span> Report Generator HTML</li>
+        </ul>
+        <a href="https://checkout.wompi.co/l/SUB_ANALISTA_LINK" class="plan-cta outline" id="btn-analista">
+          Empezar →
+        </a>
+      </div>
+
+      <!-- AGENCIA -->
+      <div class="plan featured">
+        <div class="plan-eyebrow">Para agencias digitales</div>
+        <div class="plan-name">Agencia</div>
+        <div class="plan-desc">4 modelos simultáneos. Reportes HTML para clientes. El estándar de agencia.</div>
+        <div class="plan-price-wrap">
+          <div class="plan-price">
+            <span class="plan-price-currency">$</span>249.000
+          </div>
+          <div class="plan-price-period">COP / mes</div>
+          <div class="plan-price-sub">≈ 12 estudios completos al mes</div>
+        </div>
+        <div class="plan-credits">
+          <div class="plan-credits-dot"></div>
+          600 créditos / mes
+        </div>
+        <ul class="plan-features">
+          <li class="plan-feature"><span class="plan-feature-icon check">✓</span> Gemini 2.0 Flash</li>
+          <li class="plan-feature"><span class="plan-feature-icon check">✓</span> Claude Sonnet</li>
+          <li class="plan-feature"><span class="plan-feature-icon star">★</span> GPT-4o (OpenAI) — incluido</li>
+          <li class="plan-feature"><span class="plan-feature-icon star">★</span> Sonar Pro (Perplexity) — incluido</li>
+          <li class="plan-feature"><span class="plan-feature-icon check">✓</span> Hasta 75 preguntas por estudio</li>
+          <li class="plan-feature"><span class="plan-feature-icon check">✓</span> Citation Graph semántico</li>
+          <li class="plan-feature"><span class="plan-feature-icon check">✓</span> Commercial Insights & Quick Wins</li>
+          <li class="plan-feature"><span class="plan-feature-icon star">★</span> Report Generator HTML para clientes</li>
+          <li class="plan-feature"><span class="plan-feature-icon check">✓</span> Historial ilimitado en Supabase</li>
+        </ul>
+        <a href="https://checkout.wompi.co/l/SUB_AGENCIA_LINK" class="plan-cta primary" id="btn-agencia">
+          Empezar con Agencia →
+        </a>
+      </div>
+
+      <!-- ENTERPRISE -->
+      <div class="plan">
+        <div class="plan-eyebrow">Para equipos y corporativos</div>
+        <div class="plan-name">Enterprise</div>
+        <div class="plan-desc">Sin límite de créditos. Acceso completo. Soporte prioritario directo.</div>
+        <div class="plan-price-wrap">
+          <div class="plan-price">
+            <span class="plan-price-currency">$</span>499.000
+          </div>
+          <div class="plan-price-period">COP / mes</div>
+          <div class="plan-price-sub">Créditos ilimitados incluidos</div>
+        </div>
+        <div class="plan-credits">
+          <div class="plan-credits-dot"></div>
+          Sin límite de estudios
+        </div>
+        <ul class="plan-features">
+          <li class="plan-feature"><span class="plan-feature-icon star">★</span> Todo lo del plan Agencia</li>
+          <li class="plan-feature"><span class="plan-feature-icon star">★</span> Créditos ilimitados</li>
+          <li class="plan-feature"><span class="plan-feature-icon star">★</span> Modelos personalizados (API propia)</li>
+          <li class="plan-feature"><span class="plan-feature-icon star">★</span> Soporte prioritario por WhatsApp</li>
+          <li class="plan-feature"><span class="plan-feature-icon star">★</span> Onboarding personalizado</li>
+          <li class="plan-feature"><span class="plan-feature-icon star">★</span> Acceso anticipado a nuevas funciones</li>
+        </ul>
+        <a href="https://checkout.wompi.co/l/SUB_ENTERPRISE_LINK" class="plan-cta purple-btn" id="btn-enterprise">
+          Contactar →
+        </a>
+      </div>
+
+    </div>
+
+    <!-- FREE TIER NOTE -->
+    <div style="text-align:center;margin-top:32px;">
+      <p style="font-family:var(--mono);font-size:11px;color:var(--text4);text-transform:uppercase;letter-spacing:0.1em;">
+        ¿Quieres probar primero? →
+        <a href="/" style="color:var(--purple);text-decoration:none;margin-left:4px;transition:color 0.2s;" onmouseover="this.style.color='var(--yellow)'" onmouseout="this.style.color='var(--purple)'">
+          1 estudio gratuito disponible sin registro
+        </a>
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- PACKS DE CRÉDITOS -->
+<section class="packs-section" id="view-packs" style="display:none;">
+  <div class="container">
+    <div class="section-header reveal">
+      <div class="section-eyebrow">Pago único · Sin suscripción</div>
+      <h2 class="section-title">Packs de créditos</h2>
+      <p class="section-sub">Compra créditos una vez, úsalos cuando quieras. Cada análisis cuesta 15–50 créditos según tamaño.</p>
+    </div>
+
+    <div class="packs-grid reveal">
+
+      <div class="pack-card">
+        <div class="pack-name">Starter</div>
+        <div class="pack-credits-big">100</div>
+        <div class="pack-credits-label">créditos</div>
+        <div class="pack-analyses">6 estudios básicos</div>
+        <div class="pack-per">o 2 estudios completos</div>
+        <div class="pack-divider"></div>
+        <div class="pack-price-row">
+          <span class="pack-currency">$</span>
+          <span class="pack-price">79.000</span>
+          <span class="pack-period">COP</span>
+        </div>
+        <a href="https://checkout.wompi.co/l/PACK_100_LINK" class="plan-cta outline">
+          Comprar →
+        </a>
+      </div>
+
+      <div class="pack-card featured-pack">
+        <div class="pack-name">Growth</div>
+        <div class="pack-credits-big">250</div>
+        <div class="pack-credits-label">créditos</div>
+        <div class="pack-analyses">16 estudios básicos</div>
+        <div class="pack-per">o 5 estudios completos</div>
+        <div class="pack-divider"></div>
+        <div class="pack-price-row">
+          <span class="pack-currency">$</span>
+          <span class="pack-price">149.000</span>
+          <span class="pack-period">COP</span>
+        </div>
+        <a href="https://checkout.wompi.co/l/PACK_250_LINK" class="plan-cta primary">
+          Comprar →
+        </a>
+      </div>
+
+      <div class="pack-card">
+        <div class="pack-name">Pro</div>
+        <div class="pack-credits-big">500</div>
+        <div class="pack-credits-label">créditos</div>
+        <div class="pack-analyses">33 estudios básicos</div>
+        <div class="pack-per">o 10 estudios completos</div>
+        <div class="pack-divider"></div>
+        <div class="pack-price-row">
+          <span class="pack-currency">$</span>
+          <span class="pack-price">249.000</span>
+          <span class="pack-period">COP</span>
+        </div>
+        <a href="https://checkout.wompi.co/l/PACK_500_LINK" class="plan-cta outline">
+          Comprar →
+        </a>
+      </div>
+
+    </div>
+
+    <div style="text-align:center;margin-top:32px;">
+      <p style="font-family:var(--mono);font-size:11px;color:var(--text4);text-transform:uppercase;letter-spacing:0.1em;">
+        Los packs incluyen Gemini + Claude únicamente ·
+        <button onclick="showPlans('subs')" style="background:none;border:none;color:var(--purple);font-family:var(--mono);font-size:11px;text-transform:uppercase;letter-spacing:0.1em;cursor:pointer;transition:color 0.2s;" onmouseover="this.style.color='var(--yellow)'" onmouseout="this.style.color='var(--purple)'">
+          Ver suscripciones para los 4 modelos →
+        </button>
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- FAQ -->
+<section class="faq-section">
+  <div class="container">
+    <div class="section-header reveal">
+      <div class="section-eyebrow">Preguntas frecuentes</div>
+      <h2 class="section-title">Lo que necesitas saber</h2>
+    </div>
+
+    <div id="faq-list">
+
+      <div class="faq-item">
+        <button class="faq-question" aria-expanded="false">
+          ¿Qué es un crédito y cuánto cuesta cada análisis?
+          <span class="faq-arrow">↓</span>
+        </button>
+        <div class="faq-answer">
+          <p>Un crédito es la unidad de consumo de Brand Citability. El costo por análisis depende del tamaño del estudio:</p>
+          <p><strong>Básico</strong> (≤20 preguntas · 1 modelo): <code>15 créditos</code><br>
+          <strong>Estándar</strong> (≤50 preguntas · Gemini + Claude): <code>30 créditos</code><br>
+          <strong>Completo</strong> (≤75 preguntas · todos los modelos): <code>50 créditos</code></p>
+          <p>Los planes de suscripción no descuentan créditos por análisis — tienes acceso ilimitado dentro de tu plan.</p>
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <button class="faq-question" aria-expanded="false">
+          ¿Los créditos vencen?
+          <span class="faq-arrow">↓</span>
+        </button>
+        <div class="faq-answer">
+          <p>Los créditos comprados en packs no vencen — úsalos a tu ritmo. Los créditos de las suscripciones se renuevan cada mes y no se acumulan al siguiente período.</p>
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <button class="faq-question" aria-expanded="false">
+          ¿Qué diferencia hay entre Gemini, Claude, GPT-4o y Perplexity en este contexto?
+          <span class="faq-arrow">↓</span>
+        </button>
+        <div class="faq-answer">
+          <p>Cada modelo tiene patrones de citación distintos. Un usuario que le pregunta a ChatGPT sobre tu marca puede recibir una respuesta completamente diferente a la de alguien que pregunta en Gemini.</p>
+          <p>Correr el estudio en múltiples modelos te da una visión real de tu presencia en el ecosistema completo de IA — no solo en uno.</p>
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <button class="faq-question" aria-expanded="false">
+          ¿Qué es el Report Generator?
+          <span class="faq-arrow">↓</span>
+        </button>
+        <div class="faq-answer">
+          <p>El Report Generator convierte el JSON exportado de Brand Citability en un reporte HTML visual, autónomo y listo para presentar a clientes. Incluye Executive Summary, ranking de Share of Voice, Quick Wins y Amenaza Competitiva.</p>
+          <p>Está disponible exclusivamente para planes <strong>Agencia</strong> y <strong>Enterprise</strong>.</p>
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <button class="faq-question" aria-expanded="false">
+          ¿Mis datos de campaña se almacenan en algún servidor?
+          <span class="faq-arrow">↓</span>
+        </button>
+        <div class="faq-answer">
+          <p>Los estudios se guardan en Supabase asociados a tu email para que puedas acceder al historial desde cualquier dispositivo. Solo se envían a los modelos de IA las preguntas generadas — nunca información confidencial de tus clientes.</p>
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <button class="faq-question" aria-expanded="false">
+          ¿Cómo funciona el pago?
+          <span class="faq-arrow">↓</span>
+        </button>
+        <div class="faq-answer">
+          <p>Los pagos se procesan a través de <strong>Wompi</strong>, que acepta tarjetas Visa, Mastercard, Amex, PSE, Nequi y Bancolombia. Al completar el pago, los créditos o el plan se activan automáticamente en tu cuenta.</p>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="container">
+    <div class="footer-inner">
+      <div class="footer-brand">Jairo Amaya · Full Stack Marketer</div>
+      <div class="footer-links">
+        <a href="/" class="footer-link">Herramienta</a>
+        <a href="/report-generator" class="footer-link">Report Generator</a>
+        <a href="https://jairoamaya.co" class="footer-link">jairoamaya.co</a>
+      </div>
+    </div>
+  </div>
+</footer>
+
+</div><!-- /page -->
+
+<script>
+// ── BILLING TOGGLE ──
+function showPlans(type) {
+  var isSubs = type === 'subs';
+  document.getElementById('view-subs').style.display   = isSubs ? 'block' : 'none';
+  document.getElementById('view-packs').style.display  = isSubs ? 'none'  : 'block';
+  document.getElementById('toggle-subs').classList.toggle('active',  isSubs);
+  document.getElementById('toggle-packs').classList.toggle('active', !isSubs);
+}
+
+// ── FAQ ACCORDION ──
+document.querySelectorAll('.faq-question').forEach(function(btn) {
+  btn.addEventListener('click', function() {
+    var isOpen = this.getAttribute('aria-expanded') === 'true';
+    // Cerrar todos
+    document.querySelectorAll('.faq-question').forEach(function(b) {
+      b.setAttribute('aria-expanded', 'false');
+      b.nextElementSibling.classList.remove('open');
+    });
+    // Abrir este si estaba cerrado
+    if (!isOpen) {
+      this.setAttribute('aria-expanded', 'true');
+      this.nextElementSibling.classList.add('open');
+    }
+  });
+});
+
+// ── SCROLL REVEAL ──
+var observer = new IntersectionObserver(function(entries) {
+  entries.forEach(function(entry) {
+    if (entry.isIntersecting) {
+      entry.target.classList.add('visible');
+      observer.unobserve(entry.target);
+    }
+  });
+}, { threshold: 0.1 });
+
+document.querySelectorAll('.reveal').forEach(function(el) {
+  observer.observe(el);
+});
+</script>
+
+</body>
+</html>
